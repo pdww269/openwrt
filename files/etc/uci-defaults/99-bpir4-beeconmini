@@ -1,0 +1,25 @@
+#!/bin/sh
+
+[ "$(board_name)" = "bananapi,bpi-r4" ] || exit 0
+
+pkg_dir="/usr/share/beeconmini2/apk"
+meta_pkg="$pkg_dir/app-meta-beeconmini-2.0.12-r1.apk"
+bxplug_pkg="$pkg_dir/bxplug-2.0.12.apk"
+
+[ -s "$meta_pkg" ] || exit 0
+[ -s "$bxplug_pkg" ] || exit 0
+
+grep -qx 'aarch64_generic' /etc/apk/arch 2>/dev/null || \
+	echo 'aarch64_generic' >>/etc/apk/arch
+
+if ! apk info -e bxplug >/dev/null 2>&1 || \
+	! apk info -e app-meta-beeconmini >/dev/null 2>&1; then
+	apk add --allow-untrusted --force-non-repository \
+		--repositories-file /dev/null \
+		"$bxplug_pkg" "$meta_pkg"
+fi
+
+/etc/init.d/a_bxplug-ctrl enable
+/etc/init.d/a_bxplug-ctrl restart
+
+exit 0
