@@ -52,6 +52,9 @@ for (let phy_name, phy in board.wlan) {
 		let band = info.bands[band_name];
 		let rband = radio.bands[band_name];
 		let channel = rband.default_channel ?? "auto";
+		if (band_name == "6G" &&
+		    (channel == null || channel == "" || channel == "auto" || channel == 0))
+			channel = 37;
 
 		let width = band.max_width;
 		if (band_name == "2G")

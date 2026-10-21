@@ -11,7 +11,7 @@ openwrt,one)
 	;;
 bananapi,bpi-r4*)
 	ucidef_set_country AU
-	ucidef_set_wireless all OpenWrt none
+	ucidef_set_wireless all OpenWrt
 	;;
 esac
 
