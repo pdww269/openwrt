@@ -1,0 +1,190 @@
+#!/bin/sh
+# Minimal hwmon PWM fan controller with a temperature curve.
+# Contract compatible with luci-app-fancontrol:
+#   uci:     /etc/config/fancontrol -> config fancontrol 'settings'
+#   status:  /var/run/fancontrol.status  (key=value lines)
+#   service: procd instance named "fancontrol"
+
+CONF_PKG=fancontrol
+CONF_SEC=fancontrol.settings
+STATUS=/var/run/fancontrol.status
+RUNNING=1
+STATE=0
+PREV_STATE=0
+TEMP_C=""
+ERRSTR=""
+
+uci_get() { uci -q get "$CONF_SEC.$1"; }
+
+log_msg() {
+	[ "$DEBUG" = 1 ] && logger -t fancontrol "$1"
+	return 0
+}
+
+write_status() {
+	tmp="${STATUS}.$$"
+	{
+		echo "temperature_mc=${TEMP_MC:-}"
+		echo "temperature=${TEMP_C:-}"
+		echo "pwm=${PWM_VAL:-}"
+		echo "rpm=${RPM:-}"
+		echo "thermal_file=${THERMAL_FILE:-}"
+		echo "fan_file=${FAN_FILE:-}"
+		echo "error=${ERRSTR:-}"
+	} > "$tmp" 2>/dev/null && mv "$tmp" "$STATUS" 2>/dev/null
+}
+
+read_temp_mc() {
+	local raw div
+	[ -n "$THERMAL_FILE" ] && [ -r "$THERMAL_FILE" ] || return 1
+	raw=$(cat "$THERMAL_FILE" 2>/dev/null) || return 1
+	case "$raw" in ''|*[!0-9-]*) return 1 ;; esac
+	div=${TEMP_DIV:-1000}
+	[ "$div" -gt 0 ] 2>/dev/null || div=1000
+	if [ "$div" = 1000 ]; then
+		TEMP_MC=$raw
+	else
+		TEMP_MC=$((raw * 1000 / div))
+	fi
+	return 0
+}
+
+set_pwm() { # $1 = 0..255
+	PWM_VAL=$1
+	[ -n "$FAN_FILE" ] && [ -w "$FAN_FILE" ] && printf '%s' "$PWM_VAL" > "$FAN_FILE" 2>/dev/null
+	RPM=""
+	if [ -n "$RPM_FILE" ] && [ -r "$RPM_FILE" ]; then
+		RPM=$(cat "$RPM_FILE" 2>/dev/null)
+	fi
+}
+
+resolve_hw() {
+	THERMAL_FILE=$(uci_get thermal_file); [ -z "$THERMAL_FILE" ] && THERMAL_FILE=auto
+	FAN_FILE=$(uci_get fan_file);         [ -z "$FAN_FILE" ]     && FAN_FILE=auto
+	ENABLE_FILE=$(uci_get enable_file);   [ -z "$ENABLE_FILE" ]  && ENABLE_FILE=auto
+	FAN_HWMON=$(uci_get fan_hwmon);       [ -z "$FAN_HWMON" ]    && FAN_HWMON=auto
+	THERMAL_ZONE=$(uci_get thermal_zone); [ -z "$THERMAL_ZONE" ] && THERMAL_ZONE=auto
+
+	if [ "$THERMAL_FILE" = auto ]; then
+		for t in /sys/class/thermal/thermal_zone*/temp; do
+			[ -r "$t" ] || continue
+			d=${t%/temp}
+			ty=$(cat "$d/type" 2>/dev/null)
+			if [ "$THERMAL_ZONE" = auto ] || [ "$ty" = "$THERMAL_ZONE" ]; then
+				THERMAL_FILE=$t
+				break
+			fi
+		done
+	fi
+
+	RPM_FILE=""
+	for h in /sys/class/hwmon/hwmon*; do
+		[ -d "$h" ] || continue
+		nm=$(cat "$h/name" 2>/dev/null)
+		if [ "$FAN_HWMON" != auto ] && [ "$nm" != "$FAN_HWMON" ]; then
+			continue
+		fi
+		if [ -w "$h/pwm1" ]; then
+			[ "$FAN_FILE" = auto ] && FAN_FILE="$h/pwm1"
+			[ "$ENABLE_FILE" = auto ] && [ -w "$h/pwm1_enable" ] && ENABLE_FILE="$h/pwm1_enable"
+			[ -r "$h/fan1_input" ] && RPM_FILE="$h/fan1_input"
+			break
+		fi
+	done
+
+	if [ "$ENABLE_FILE" != auto ] && [ -w "$ENABLE_FILE" ]; then
+		printf '%s' 1 > "$ENABLE_FILE" 2>/dev/null
+	fi
+}
+
+shutdown() {
+	RUNNING=0
+}
+
+trap 'shutdown' TERM INT
+
+# main loop
+while :; do
+	ENABLED=$(uci_get enabled); [ -z "$ENABLED" ] && ENABLED=1
+	START_TEMP=$(uci_get start_temp);   [ -z "$START_TEMP" ] && START_TEMP=45
+	FULL_TEMP=$(uci_get full_speed_temp); [ -z "$FULL_TEMP" ] && FULL_TEMP=80
+	HYST=$(uci_get hysteresis);        [ -z "$HYST" ] && HYST=5
+	START_SPEED=$(uci_get start_speed); [ -z "$START_SPEED" ] && START_SPEED=25
+	MAX_SPEED=$(uci_get max_speed);     [ -z "$MAX_SPEED" ] && MAX_SPEED=100
+	INTERVAL=$(uci_get interval);       [ -z "$INTERVAL" ] && INTERVAL=5
+	TEMP_DIV=$(uci_get temp_div);       [ -z "$TEMP_DIV" ] && TEMP_DIV=1000
+	FAIL_SAFE=$(uci_get fail_safe_speed); [ -z "$FAIL_SAFE" ] && FAIL_SAFE=100
+	EXIT_SPEED=$(uci_get exit_speed);   [ -z "$EXIT_SPEED" ] && EXIT_SPEED=0
+	KICK_SPEED=$(uci_get kick_speed);   [ -z "$KICK_SPEED" ] && KICK_SPEED=0
+	KICK_MS=$(uci_get kick_ms);         [ -z "$KICK_MS" ] && KICK_MS=0
+	DEBUG=$(uci_get debug);             [ -z "$DEBUG" ] && DEBUG=0
+
+	resolve_hw
+	ERRSTR=""
+
+	if [ "$ENABLED" != 1 ]; then
+		ERRSTR="disabled"
+		write_status
+		sleep 5
+		continue
+	fi
+
+	[ -n "$FAN_FILE" ] && [ "$FAN_FILE" != auto ] || { ERRSTR="no pwm device"; write_status; sleep 10; continue; }
+
+	if ! read_temp_mc; then
+		ERRSTR="temperature read failed"
+		pct=$FAIL_SAFE
+	else
+		temp_c=$((TEMP_MC / 1000))
+		TEMP_C=$temp_c
+		if [ "$temp_c" -ge "$FULL_TEMP" ]; then
+			pct=$MAX_SPEED
+			STATE=1
+		elif [ "$temp_c" -ge "$START_TEMP" ]; then
+			d=$((FULL_TEMP - START_TEMP)); [ "$d" -le 0 ] && d=1
+			pct=$((START_SPEED + (MAX_SPEED - START_SPEED) * (temp_c - START_TEMP) / d))
+			STATE=1
+		elif [ "$STATE" = 1 ] && [ "$temp_c" -gt $((START_TEMP - HYST)) ]; then
+			# still cooling down: keep the fan spinning at minimum until below start-hysteresis
+			pct=$START_SPEED
+		else
+			pct=0
+			STATE=0
+		fi
+	fi
+
+	[ "$pct" -gt 100 ] && pct=100
+	[ "$pct" -lt 0 ] && pct=0
+	PWM_VAL=$((pct * 255 / 100))
+
+	# start kick: give the fan a push when it spins up from standstill
+	if [ "$STATE" = 1 ] && [ "$PREV_STATE" = 0 ] && [ "$KICK_SPEED" -gt 0 ] && [ "$KICK_MS" -gt 0 ]; then
+		kick=$((KICK_SPEED * 255 / 100))
+		set_pwm "$kick"
+		ms=$KICK_MS
+		while [ "$ms" -gt 0 ]; do
+			s=$((ms / 1000)); [ "$s" -lt 1 ] && s=1
+			sleep "$s"
+			ms=$((ms - s * 1000))
+		done
+	fi
+
+	set_pwm "$PWM_VAL"
+	PREV_STATE=$STATE
+	write_status
+	log_msg "temp=${TEMP_C}C pwm=${PWM_VAL} pct=${pct}% rpm=${RPM:-?} file=${FAN_FILE}"
+
+	[ "$RUNNING" = 1 ] || break
+
+	# sleep in small steps so SIGTERM is handled promptly
+	i=$INTERVAL
+	while [ "$i" -gt 0 ] && [ "$RUNNING" = 1 ]; do
+		sleep 1
+		i=$((i - 1))
+	done
+done
+
+[ -n "$FAN_FILE" ] && [ "$FAN_FILE" != auto ] && printf '%s' "$((EXIT_SPEED * 255 / 100))" > "$FAN_FILE" 2>/dev/null
+rm -f "$STATUS" 2>/dev/null
+exit 0
+

@@ -9,6 +9,10 @@ openwrt,one)
 	ucidef_set_wireless_mac_count 2g 7
 	ucidef_set_wireless_mac_count 5g 7
 	;;
+bananapi,bpi-r4*)
+	ucidef_set_country AU
+	ucidef_set_wireless all OpenWrt none
+	;;
 esac
 
 board_config_flush

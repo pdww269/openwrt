@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# A fresh image should boot into Aurora's sidebar layout. Glass ships its own
+# 30_luci-theme-glass default, so this later script has the final say.
+[ "$PKG_UPGRADE" = 1 ] && exit 0
+
+uci -q batch <<-EOF
+	set luci.themes.Aurora='/luci-static/aurora'
+	set luci.main.mediaurlbase='/luci-static/aurora'
+	set aurora.theme.nav_type='sidebar'
+	commit luci
+	commit aurora
+EOF
+
+rm -f /tmp/luci-indexcache /tmp/luci-modulecache
+exit 0
