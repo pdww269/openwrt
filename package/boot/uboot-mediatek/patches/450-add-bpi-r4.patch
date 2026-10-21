@@ -451,7 +451,7 @@
 +bootconf=config-mt7988a-bananapi-bpi-r4
 +bootconf_sd=mt7988a-bananapi-bpi-r4-sd
 +bootconf_emmc=mt7988a-bananapi-bpi-r4-emmc
-+bootconf_extra=
++bootconf_extra=mt7988a-bananapi-bpi-r4-wifi-be14
 +bootdelay=0
 +bootfile=openwrt-mediatek-filogic-bananapi_bpi-r4-initramfs-recovery.itb
 +bootfile_upg=openwrt-mediatek-filogic-bananapi_bpi-r4-squashfs-sysupgrade.itb
@@ -517,7 +517,7 @@
 +loadaddr=0x50000000
 +bootargs=console=ttyS0,115200n1 pci=pcie_bus_perf root=/dev/fit0 rootwait ubi.block=0,fit
 +bootconf=config-mt7988a-bananapi-bpi-r4
-+bootconf_extra=mt7988a-bananapi-bpi-r4-emmc
++bootconf_extra=mt7988a-bananapi-bpi-r4-emmc#mt7988a-bananapi-bpi-r4-wifi-be14
 +bootcmd=if pstore check ; then run boot_recovery ; else run boot_ubi ; fi
 +bootdelay=0
 +bootfile=openwrt-mediatek-filogic-bananapi_bpi-r4-initramfs-recovery.itb
@@ -591,7 +591,7 @@
 +bootconf=config-mt7988a-bananapi-bpi-r4
 +bootconf_base=config-mt7988a-bananapi-bpi-r4
 +bootconf_emmc=mt7988a-bananapi-bpi-r4-emmc
-+bootconf_extra=
++bootconf_extra=mt7988a-bananapi-bpi-r4-wifi-be14
 +bootdelay=0
 +bootfile=openwrt-mediatek-filogic-bananapi_bpi-r4-initramfs-recovery.itb
 +bootfile_bl2=openwrt-mediatek-filogic-bananapi_bpi-r4-emmc-preloader.bin
@@ -1342,7 +1342,7 @@
 +bootconf=config-mt7988a-bananapi-bpi-r4-poe
 +bootconf_base=config-mt7988a-bananapi-bpi-r4-poe
 +bootconf_emmc=mt7988a-bananapi-bpi-r4-emmc
-+bootconf_extra=
++bootconf_extra=mt7988a-bananapi-bpi-r4-wifi-be14
 +bootdelay=0
 +bootfile=openwrt-mediatek-filogic-bananapi_bpi-r4-poe-initramfs-recovery.itb
 +bootfile_bl2=openwrt-mediatek-filogic-bananapi_bpi-r4-poe-emmc-preloader.bin
@@ -1403,7 +1403,7 @@
 +bootconf=config-mt7988a-bananapi-bpi-r4-poe
 +bootconf_sd=mt7988a-bananapi-bpi-r4-sd
 +bootconf_emmc=mt7988a-bananapi-bpi-r4-emmc
-+bootconf_extra=
++bootconf_extra=mt7988a-bananapi-bpi-r4-wifi-be14
 +bootdelay=0
 +bootfile=openwrt-mediatek-filogic-bananapi_bpi-r4-poe-initramfs-recovery.itb
 +bootfile_upg=openwrt-mediatek-filogic-bananapi_bpi-r4-poe-squashfs-sysupgrade.itb
@@ -1469,7 +1469,7 @@
 +loadaddr=0x50000000
 +bootargs=console=ttyS0,115200n1 pci=pcie_bus_perf root=/dev/fit0 rootwait ubi.block=0,fit
 +bootconf=config-mt7988a-bananapi-bpi-r4-poe
-+bootconf_extra=mt7988a-bananapi-bpi-r4-emmc
++bootconf_extra=mt7988a-bananapi-bpi-r4-emmc#mt7988a-bananapi-bpi-r4-wifi-be14
 +bootcmd=if pstore check ; then run boot_recovery ; else run boot_ubi ; fi
 +bootdelay=0
 +bootfile=openwrt-mediatek-filogic-bananapi_bpi-r4-poe-initramfs-recovery.itb

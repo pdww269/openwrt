@@ -1,0 +1,8 @@
+# /var/run/fancontrol.status written by /usr/bin/fancontrol (key=value)
+temperature_mc=52000
+temperature=52
+pwm=76
+rpm=1830
+thermal_file=/sys/class/thermal/thermal_zone0/temp
+fan_file=/sys/class/hwmon/hwmon0/pwm1
+error=
