@@ -1,0 +1,12 @@
+BeeconMini iStore plugin 2.0.12
+
+app-meta-beeconmini-2.0.12-r1.apk
+https://istore.istoreos.com/repo-apk/all/meta/app-meta-beeconmini-2.0.12-r1.apk
+SHA256 42aa3bb839b7a155234b4ccdab615d9b59917aae32fb48f20abfbcdb58af0333
+
+bxplug-2.0.12.apk
+https://istore.istoreos.com/repo-apk/aarch64_generic/nas/bxplug-2.0.12.apk
+SHA256 e6ab5e126cbda83ae96dc3146ec2fc7e258761226192028e28a470037769f78f
+
+The first-boot installer registers both packages through apk, enables the
+BeeconMini AC service, and does not modify the BPI-R4 network configuration.
