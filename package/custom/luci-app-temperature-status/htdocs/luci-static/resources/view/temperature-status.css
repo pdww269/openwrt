@@ -1,0 +1,39 @@
+.temperature-table td {
+	vertical-align: middle;
+}
+
+.temperature-reading {
+	font-size: 1.15em;
+	font-weight: 700;
+	white-space: nowrap;
+}
+
+.temperature-detail {
+	opacity: .65;
+	font-size: .9em;
+}
+
+.temperature-fan {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+}
+
+.temperature-metric {
+	min-width: 10rem;
+	padding: .75rem 1rem;
+	border: 1px solid var(--border-color-medium, rgba(127, 127, 127, .25));
+	border-radius: 6px;
+}
+
+.temperature-metric-label {
+	display: block;
+	opacity: .7;
+	font-size: .9em;
+}
+
+.temperature-metric-value {
+	display: block;
+	margin-top: .25rem;
+	font-size: 1.2em;
+}

@@ -1,0 +1,7 @@
+{
+	"admin/status/overview": {
+		"depends": {
+			"acl": [ "luci-mod-status-index", "luci-app-temperature-status" ]
+		}
+	}
+}
