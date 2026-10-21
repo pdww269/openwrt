@@ -1,0 +1,16 @@
+#!/bin/sh
+
+[ "$(board_name)" = "bananapi,bpi-r4" ] || exit 0
+
+uci -q delete network.lan.ipaddr
+uci -q add_list network.lan.ipaddr='192.168.50.1/24'
+uci -q delete network.lan.netmask
+uci -q commit network
+
+uci -q set system.@system[0].hostname='BPI-R4'
+uci -q set system.@system[0].description='Banana Pi BPI-R4'
+uci -q set system.@system[0].zonename='Asia/Shanghai'
+uci -q set system.@system[0].timezone='CST-8'
+uci -q commit system
+
+exit 0
