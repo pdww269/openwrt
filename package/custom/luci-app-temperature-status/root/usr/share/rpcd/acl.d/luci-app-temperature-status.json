@@ -1,0 +1,21 @@
+{
+	"luci-app-temperature-status": {
+		"description": "Grant access to temperature and fan status",
+		"read": {
+			"file": {
+				"/sys/class/hwmon": [ "list" ],
+				"/sys/class/hwmon/*": [ "list" ],
+				"/sys/class/hwmon/*/name": [ "read" ],
+				"/sys/class/hwmon/*/temp1_input": [ "read" ],
+				"/sys/class/hwmon/*/temp1_label": [ "read" ],
+				"/sys/class/hwmon/*/temp1_crit": [ "read" ],
+				"/sys/class/hwmon/*/pwm1": [ "read" ],
+				"/sys/class/hwmon/*/fan1_input": [ "read" ],
+				"/sys/class/thermal": [ "list" ],
+				"/sys/class/thermal/thermal_zone*": [ "list" ],
+				"/sys/class/thermal/thermal_zone*/type": [ "read" ],
+				"/sys/class/thermal/thermal_zone*/temp": [ "read" ]
+			}
+		}
+	}
+}

@@ -1,0 +1,75 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: luci-app-temperature-status 1.0.0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Temperatures"
+msgstr ""
+
+msgid "Wi-Fi 2.4 GHz"
+msgstr ""
+
+msgid "Wi-Fi 5 GHz"
+msgstr ""
+
+msgid "Wi-Fi 6 GHz"
+msgstr ""
+
+msgid "SFP WAN module"
+msgstr ""
+
+msgid "SFP LAN module"
+msgstr ""
+
+msgid "SFP WAN PHY"
+msgstr ""
+
+msgid "CPU"
+msgstr ""
+
+msgid "Unavailable"
+msgstr ""
+
+msgid "Critical"
+msgstr ""
+
+msgid "Hot"
+msgstr ""
+
+msgid "Normal"
+msgstr ""
+
+msgid "No temperature sensors found"
+msgstr ""
+
+msgid "Not detected"
+msgstr ""
+
+msgid "Fan"
+msgstr ""
+
+msgid "Fan PWM"
+msgstr ""
+
+msgid "Fan speed"
+msgstr ""
+
+msgid "Sensor"
+msgstr ""
+
+msgid "Temperature"
+msgstr ""
+
+msgid "Limit"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Collecting data..."
+msgstr ""
+
+msgid "Cooling"
+msgstr ""

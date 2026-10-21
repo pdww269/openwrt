@@ -1,0 +1,77 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: luci-app-temperature-status 1.0.0\n"
+"Language: zh_Hans\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Temperatures"
+msgstr "温度状态"
+
+msgid "Wi-Fi 2.4 GHz"
+msgstr "Wi-Fi 2.4 GHz"
+
+msgid "Wi-Fi 5 GHz"
+msgstr "Wi-Fi 5 GHz"
+
+msgid "Wi-Fi 6 GHz"
+msgstr "Wi-Fi 6 GHz"
+
+msgid "SFP WAN module"
+msgstr "SFP WAN 模块"
+
+msgid "SFP LAN module"
+msgstr "SFP LAN 模块"
+
+msgid "SFP WAN PHY"
+msgstr "SFP WAN PHY"
+
+msgid "CPU"
+msgstr "CPU"
+
+msgid "Unavailable"
+msgstr "不可用"
+
+msgid "Critical"
+msgstr "临界"
+
+msgid "Hot"
+msgstr "偏高"
+
+msgid "Normal"
+msgstr "正常"
+
+msgid "No temperature sensors found"
+msgstr "未发现温度传感器"
+
+msgid "Not detected"
+msgstr "未检测到"
+
+msgid "Fan"
+msgstr "风扇"
+
+msgid "Fan PWM"
+msgstr "风扇 PWM"
+
+msgid "Fan speed"
+msgstr "风扇转速"
+
+msgid "Sensor"
+msgstr "传感器"
+
+msgid "Temperature"
+msgstr "温度"
+
+msgid "Limit"
+msgstr "上限"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "Collecting data..."
+msgstr "正在采集数据..."
+
+msgid "Cooling"
+msgstr "散热"
