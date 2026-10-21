@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# Preserve preserved sysupgrade configurations on the BPI-R4: the old wireless
+# config may lack the 6g band property, which makes hostapd select hw_mode=g.
+[ -f /etc/config/wireless ] || exit 0
+
+for radio in radio0 radio1 radio2; do
+	uci -q get "wireless.$radio" >/dev/null || continue
+	uci -q set "wireless.$radio.country=AU"
+done
+
+if uci -q get wireless.radio2 >/dev/null; then
+	uci -q set "wireless.radio2.band=6g"
+fi
+
+uci -q commit wireless
+
+exit 0
