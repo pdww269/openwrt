@@ -20,7 +20,7 @@ if not op_mode then op_mode = "redir-host" end
 local lan_ip = fs.lanip()
 m = Map("openclash", translate("Overwrite Settings"))
 m.pageaction = false
-m.description = translate("Note: To restore the default configuration, try accessing:").." <a href='javascript:void(0)' onclick='javascript:restore_config(this)'>http://"..lan_ip.."/cgi-bin/luci/admin/services/openclash/restore</a>"..
+m.description = translate("Note: To restore the default configuration, try accessing:").." <a href='javascript:void(0)' onclick='javascript:restore_config(this)'>http://"..lan_ip.."/cgi-bin/luci/admin/openclash/restore</a>"..
 "<br/>"..font_green..translate("For More Useful Meta Core Functions Go Wiki")..": "..font_off.."<a href='javascript:void(0)' onclick='javascript:return winOpen(\"https://wiki.metacubex.one/\")'>"..translate("https://wiki.metacubex.one/").."</a>"
 
 s = m:section(TypedSection, "openclash")
@@ -435,7 +435,7 @@ o.write = function()
 	m.uci:set("openclash", "config", "enable", 1)
 	m.uci:commit("openclash")
 	SYS.call("/usr/share/openclash/openclash_lgbm.sh >/dev/null 2>&1 &")
-	HTTP.redirect(DISP.build_url("admin", "services", "openclash"))
+	HTTP.redirect(DISP.build_url("admin", "openclash"))
 end
 
 o = s:taboption("smart", DummyValue, "flush_smart_cache", translate("Flush Smart Cache"))
@@ -498,7 +498,7 @@ ds.anonymous = true
 ds.addremove = true
 ds.sortable = true
 ds.template = "openclash/tblsection"
-ds.extedit = DISP.build_url("admin/services/openclash/custom-dns-edit/%s")
+ds.extedit = DISP.build_url("admin/openclash/custom-dns-edit/%s")
 function ds.create(self, section)
 	local sid = TypedSection.create(self, section)
 	if sid then
@@ -605,7 +605,7 @@ o.write = function()
 	m.uci:set("openclash", "config", "enable", 1)
 	m.uci:commit("openclash")
 	SYS.call("/etc/init.d/openclash restart >/dev/null 2>&1 &")
-	HTTP.redirect(DISP.build_url("admin", "services", "openclash"))
+	HTTP.redirect(DISP.build_url("admin", "openclash"))
 end
 
 m:append(Template("openclash/config_editor"))

@@ -125,7 +125,7 @@ Vite 开发服务器用中间件重写本地请求，使 CSS/JS 资源由你的�
 
 **工作方式：**
 
-1. **一页一文件，以 `data-page` 命名。** 每个补丁位于 `media/patches/<page>.css`，其中 `<page>` 是目标页面 `<body data-page="…">` 的值 —— 也就是请求路径各段用 `-` 连接的结果（例如 `admin-services-openclash-config`）。`header.ut` 在渲染时从 `ctx.request_path` 计算出同样的字符串，`request_path` 为空时回退到 `ctx.path`（`join('-', length(ctx.request_path) ? ctx.request_path : ctx.path)`），这样不带显式路径抵达的默认落地页也能解析出自己的补丁。
+1. **一页一文件，以 `data-page` 命名。** 每个补丁位于 `media/patches/<page>.css`，其中 `<page>` 是目标页面 `<body data-page="…">` 的值 —— 也就是请求路径各段用 `-` 连接的结果（例如 `admin-openclash-config`）。`header.ut` 在渲染时从 `ctx.request_path` 计算出同样的字符串，`request_path` 为空时回退到 `ctx.path`（`join('-', length(ctx.request_path) ? ctx.request_path : ctx.path)`），这样不带显式路径抵达的默认落地页也能解析出自己的补丁。
 2. **构建是拆分，不是打包。** `vite.config.ts` 把每个 `media/patches/*.css` 都加为独立的 Rollup 入口，因此各自编译成 `htdocs/luci-static/aurora/patches/<page>.css`。它们不再是 `main.css` 的一部分。
 3. **原生 CSS，不用 `@apply`。** 补丁是唯一写原生声明而非 Tailwind 工具类的地方。每个补丁都是独立构建入口，而旧的 `@reference "../main.css";` + `@apply` 方案会让每个文件各自携带一份 `@property`/辅助样板。把*同样的规则*改写成原生 —— 基于 v1.1.7 → v1.1.8 的转换实测，构建产物，选择器和取值完全相同：
 
@@ -135,8 +135,8 @@ Vite 开发服务器用中间件重写本地请求，使 CSS/JS 资源由你的�
    | admin-modem-modemdata-modempreview | 162 B | 96 B | −41% |
    | admin-modem-qmodem | 9,483 B | 4,497 B | −53% |
    | admin-network-network | 160 B | 86 B | −46% |
-   | admin-services-openclash-config | 187 B | 87 B | −53% |
-   | admin-services-openclash-settings | 638 B | 509 B | −20% |
+   | admin-openclash-config | 187 B | 87 B | −53% |
+   | admin-openclash-settings | 638 B | 509 B | −20% |
    | admin-statistics-graphs | 1,609 B | 110 B | −93% |
    | admin-system-filemanager | 576 B | 184 B | −68% |
    | **合计** | **19,755 B** | **8,208 B** | **−58%** |

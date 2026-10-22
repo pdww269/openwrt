@@ -109,7 +109,7 @@
   // open the cover on its own; slow or failed data requests must not trap the card
   setTimeout(collapseCard, 2000);
 
-  XHR.get('<%=luci.dispatcher.build_url("admin", "services", "openclash", "oix_info")%>', null, function(x, status) {
+  XHR.get('<%=luci.dispatcher.build_url("admin", "openclash", "oix_info")%>', null, function(x, status) {
     if (x && x.status == 200 && status.result != "error") {
         oix_plan.innerHTML = status.result.plan;
         oix_plantime.innerHTML = status.result.plan_time;
@@ -143,7 +143,7 @@
   var oixPollTimer = null;
 
   function oixPollRefresh() {
-    XHR.get('<%=luci.dispatcher.build_url("admin", "services", "openclash", "oix_info")%>', null, function(x, status) {
+    XHR.get('<%=luci.dispatcher.build_url("admin", "openclash", "oix_info")%>', null, function(x, status) {
       if (x && x.status == 200 && status.result != "error") {
         oix_plan.innerHTML = status.result.plan;
         oix_plantime.innerHTML = status.result.plan_time;
@@ -237,7 +237,7 @@
   {
     if (btn && btn.disabled) return;
     if (btn) btn.disabled = true;
-    XHR.get('<%=luci.dispatcher.build_url("admin", "services", "openclash", "oix_checkin")%>', null, function(x, status) {
+    XHR.get('<%=luci.dispatcher.build_url("admin", "openclash", "oix_checkin")%>', null, function(x, status) {
       if (btn) btn.disabled = false;
       if ( x && x.status == 200 && status.result != "error") {
         if (status.result.ret == 200) {

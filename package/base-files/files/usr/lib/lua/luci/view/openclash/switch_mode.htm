@@ -11,7 +11,7 @@
 
 <script type="text/javascript">//<![CDATA[
 	var switch_mode  = document.getElementById('switch_mode');
-	XHR.get('<%=luci.dispatcher.build_url("admin", "services", "openclash", "op_mode")%>', null, function(x, status) {
+	XHR.get('<%=luci.dispatcher.build_url("admin", "openclash", "op_mode")%>', null, function(x, status) {
 		if ( x && x.status == 200 ) {
 			if ( status.op_mode == "redir-host" ) {
 				switch_mode.innerHTML = '<input type="button" class="btn cbi-button cbi-button-reset oc oc-switch-mode-btn" value="<%:Switch page to Fake-IP mode%>" onclick="return switch_modes(this)"/>';
@@ -33,14 +33,14 @@
 		}).then(function(choice) {
 			if (choice !== 'ok') return;
 			btn.disabled = true;
-			XHR.get('<%=luci.dispatcher.build_url("admin", "services", "openclash", "switch_mode")%>', null, function(x, status) {
+			XHR.get('<%=luci.dispatcher.build_url("admin", "openclash", "switch_mode")%>', null, function(x, status) {
 				if ( x && x.status == 200 ) {
 					var msg = ( status.switch_mode == "redir-host" )
 						? '<%:Page has been switched to Fake-IP mode!%>'
 						: '<%:Page has been switched to Redir-Host mode!%>';
 					switch_mode.innerHTML = '<span class="oc-status-ok">' + msg + '</span>';
 					setTimeout(function() {
-						window.location.href='<%=luci.dispatcher.build_url("admin", "services", "openclash", "settings")%>';
+						window.location.href='<%=luci.dispatcher.build_url("admin", "openclash", "settings")%>';
 					}, 1200);
 				}
 				else {

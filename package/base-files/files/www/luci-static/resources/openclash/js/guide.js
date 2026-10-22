@@ -3,10 +3,10 @@
 
 var Guide = {
     urls: {
-        check_core: '<%=url("admin", "services", "openclash", "check_core")%>',
-        update: '<%=url("admin", "services", "openclash", "update")%>',
-        status: '<%=url("admin", "services", "openclash", "status")%>',
-        config_file_list: '<%=url("admin", "services", "openclash", "config_file_list")%>'
+        check_core: '<%=url("admin", "openclash", "check_core")%>',
+        update: '<%=url("admin", "openclash", "update")%>',
+        status: '<%=url("admin", "openclash", "status")%>',
+        config_file_list: '<%=url("admin", "openclash", "config_file_list")%>'
     },
     running: false,
     step: 0,

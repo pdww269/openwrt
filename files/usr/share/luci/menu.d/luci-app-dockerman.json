@@ -1,7 +1,7 @@
 {
 	"admin/docker": {
 		"title": "Docker",
-		"order": 45,
+		"order": 35,
 		"action": {
 			"type": "firstchild"
 		},

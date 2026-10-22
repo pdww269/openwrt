@@ -1,7 +1,7 @@
 // out: false
 
 // Services - OpenClash
-[data-page^="admin-services-openclash"] {
+[data-page^="admin-openclash"] {
     img[src$="arrow-clockwise-light.svg"],
     img[src$="wrench-light.svg"],
     img[src$="eye-light.svg"] {
@@ -329,21 +329,21 @@
         }
     }
 
-    &[data-page="admin-services-openclash-config"],
-    &[data-page="admin-services-openclash-config-subscribe"],
-    &[data-page^="admin-services-openclash-custom-dns-edit"],
-    &[data-page^="admin-services-openclash-config-subscribe-edit"],
-    &[data-page^="admin-services-openclash-groups-config"],
-    &[data-page^="admin-services-openclash-proxy-provider-config"],
-    &[data-page^="admin-services-openclash-servers-config"],
-    &[data-page^="admin-services-openclash-other-file-edit"] {
+    &[data-page="admin-openclash-config"],
+    &[data-page="admin-openclash-config-subscribe"],
+    &[data-page^="admin-openclash-custom-dns-edit"],
+    &[data-page^="admin-openclash-config-subscribe-edit"],
+    &[data-page^="admin-openclash-groups-config"],
+    &[data-page^="admin-openclash-proxy-provider-config"],
+    &[data-page^="admin-openclash-servers-config"],
+    &[data-page^="admin-openclash-other-file-edit"] {
         .cbi-map>.cbi-section>.cbi-section-node:not(.cbi-section-node-tabbed) {
             padding-top: 1rem;
             padding-bottom: 1rem;
         }
     }
 
-    &[data-page^="admin-services-openclash-config-subscribe-edit"] {
+    &[data-page^="admin-openclash-config-subscribe-edit"] {
         [id^="cbi-openclash-"][id$="-de_ex_keyword"] {
             >.cbi-value-field {
                 >div:not([class])>span.cbi-checkbox {
@@ -545,7 +545,7 @@
     }
 
     @media screen and (max-width: 600px) {
-        &[data-page^="admin-services-openclash-config-subscribe-edit"] {
+        &[data-page^="admin-openclash-config-subscribe-edit"] {
             [id^="cbi-openclash-"][id$="-de_ex_keyword"] {
                 display: flex;
                 flex-direction: column;

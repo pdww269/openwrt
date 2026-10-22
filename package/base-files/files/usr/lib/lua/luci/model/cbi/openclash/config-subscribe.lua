@@ -65,7 +65,7 @@ s.anonymous = true
 s.addremove = true
 s.sortable = true
 s.template = "cbi/tblsection"
-s.extedit = DISP.build_url("admin/services/openclash/config-subscribe-edit/%s")
+s.extedit = DISP.build_url("admin/openclash/config-subscribe-edit/%s")
 function s.create(...)
 	local sid = TypedSection.create(...)
 	if sid then
@@ -142,7 +142,7 @@ o.write = function()
 	m.uci:set("openclash", "config", "enable", 1)
 	m.uci:commit("openclash")
 	SYS.call("/usr/share/openclash/openclash.sh >/dev/null 2>&1 &")
-	HTTP.redirect(DISP.build_url("admin", "services", "openclash"))
+	HTTP.redirect(DISP.build_url("admin", "openclash"))
 end
 
 local render_children = m.render_children

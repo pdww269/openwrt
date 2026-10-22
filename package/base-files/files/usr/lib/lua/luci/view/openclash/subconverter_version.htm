@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			status: status,
 			watchRoot: status.closest ? status.closest('.cbi-value') : null,
 			watchDocument: true,
-			proxyURL: '<%=luci.dispatcher.build_url("admin", "services", "openclash", "subconverter_version")%>',
+			proxyURL: '<%=luci.dispatcher.build_url("admin", "openclash", "subconverter_version")%>',
 			labels: {
 				checking: '<%:Checking backend version...%>',
 				versionPrefix: '<%:Backend Version%>',

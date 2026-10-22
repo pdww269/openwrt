@@ -125,7 +125,7 @@ Some third-party LuCI apps ship markup that doesn't adapt to the theme and needs
 
 **How it works:**
 
-1. **One file per page, named by `data-page`.** Each patch lives at `media/patches/<page>.css`, where `<page>` is the value of `<body data-page="…">` for the target page — i.e. the request path segments joined by `-` (e.g. `admin-services-openclash-config`). `header.ut` computes the same string at render time from `ctx.request_path`, falling back to `ctx.path` when `request_path` is empty (`join('-', length(ctx.request_path) ? ctx.request_path : ctx.path)`) so default landings reached without an explicit path still resolve their patch.
+1. **One file per page, named by `data-page`.** Each patch lives at `media/patches/<page>.css`, where `<page>` is the value of `<body data-page="…">` for the target page — i.e. the request path segments joined by `-` (e.g. `admin-openclash-config`). `header.ut` computes the same string at render time from `ctx.request_path`, falling back to `ctx.path` when `request_path` is empty (`join('-', length(ctx.request_path) ? ctx.request_path : ctx.path)`) so default landings reached without an explicit path still resolve their patch.
 2. **Build splits, not bundles.** `vite.config.ts` adds every `media/patches/*.css` as its own Rollup entry, so each compiles to `htdocs/luci-static/aurora/patches/<page>.css`. They are no longer part of `main.css`.
 3. **Plain CSS, not `@apply`.** Patches are the one place that writes native declarations instead of Tailwind utilities. Each patch is its own build entry, and the old `@reference "../main.css";` + `@apply` setup made every file carry its own `@property`/helper boilerplate. Rewriting the *same rules* natively — measured on the v1.1.7 → v1.1.8 conversion, built output, identical selectors and values:
 
@@ -135,8 +135,8 @@ Some third-party LuCI apps ship markup that doesn't adapt to the theme and needs
    | admin-modem-modemdata-modempreview | 162 B | 96 B | −41% |
    | admin-modem-qmodem | 9,483 B | 4,497 B | −53% |
    | admin-network-network | 160 B | 86 B | −46% |
-   | admin-services-openclash-config | 187 B | 87 B | −53% |
-   | admin-services-openclash-settings | 638 B | 509 B | −20% |
+   | admin-openclash-config | 187 B | 87 B | −53% |
+   | admin-openclash-settings | 638 B | 509 B | −20% |
    | admin-statistics-graphs | 1,609 B | 110 B | −93% |
    | admin-system-filemanager | 576 B | 184 B | −68% |
    | **total** | **19,755 B** | **8,208 B** | **−58%** |

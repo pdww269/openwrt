@@ -6,7 +6,7 @@ local DISP = require "luci.dispatcher"
 local file_path = fs.get_file_path_from_request()
 
 if not file_path then
-	HTTP.redirect(DISP.build_url("admin", "services", "openclash", "%s") % arg[1])
+	HTTP.redirect(DISP.build_url("admin", "openclash", "%s") % arg[1])
 	return
 end
 
@@ -34,7 +34,7 @@ HTTP.setfilehandler(
 
 m = Map("openclash", translate("File Edit"))
 m.pageaction = false
-m.redirect = DISP.build_url("admin", "services", "openclash", "other-file-edit", "%s") % arg[1].."?file="..HTTP.urlencode(file_path)
+m.redirect = DISP.build_url("admin", "openclash", "other-file-edit", "%s") % arg[1].."?file="..HTTP.urlencode(file_path)
 s = m:section(TypedSection, "openclash")
 s.anonymous = true
 s.addremove=false
@@ -75,7 +75,7 @@ o = a:option(Button,"Back", " ")
 o.inputtitle = translate("Back Settings")
 o.inputstyle = "reset"
 o.write = function()
-	HTTP.redirect(DISP.build_url("admin", "services", "openclash", "%s") % arg[1])
+	HTTP.redirect(DISP.build_url("admin", "openclash", "%s") % arg[1])
 end
 
 m:append(Template("openclash/config_editor"))
