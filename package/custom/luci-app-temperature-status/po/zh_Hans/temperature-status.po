@@ -31,16 +31,16 @@ msgstr "SFP WAN PHY"
 msgid "CPU"
 msgstr "CPU"
 
-msgid "Unavailable"
+msgid "Temperature unavailable"
 msgstr "不可用"
 
-msgid "Critical"
-msgstr "临界"
+msgid "Temperature critical"
+msgstr "过高"
 
-msgid "Hot"
+msgid "Temperature high"
 msgstr "偏高"
 
-msgid "Normal"
+msgid "Temperature normal"
 msgstr "正常"
 
 msgid "No temperature sensors found"

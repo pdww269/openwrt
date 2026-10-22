@@ -1,0 +1,27 @@
+#!/bin/sh
+
+limit=95000
+tries=20
+
+while [ "$tries" -gt 0 ]; do
+	for file in /sys/class/hwmon/hwmon*/name; do
+		[ -f "$file" ] || continue
+		grep -q '^i2csfp111' "$file" 2>/dev/null || continue
+
+		dir="${file%/name}"
+
+		for attr in temp1_max temp1_crit; do
+			path="$dir/$attr"
+			[ -w "$path" ] || continue
+			printf '%s\n' "$limit" >"$path" 2>/dev/null || true
+		done
+
+		[ "$(cat "$dir/temp1_max" 2>/dev/null)" = "$limit" ] && \
+			[ "$(cat "$dir/temp1_crit" 2>/dev/null)" = "$limit" ] && exit 0
+	done
+
+	tries=$((tries - 1))
+	sleep 1
+done
+
+exit 1

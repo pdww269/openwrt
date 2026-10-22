@@ -1,0 +1,6 @@
+#!/bin/sh
+
+/etc/init.d/sfp-phy-temp-limit enable
+/etc/init.d/sfp-phy-temp-limit start
+
+exit 0
