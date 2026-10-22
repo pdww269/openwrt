@@ -1,0 +1,31 @@
+#!/bin/sh
+
+[ "$(board_name)" = "bananapi,bpi-r4" ] || exit 0
+
+overlay_uuid="$(blkid -s UUID -o value /dev/mmcblk0p6 2>/dev/null)"
+data_uuid="$(blkid -s UUID -o value /dev/mmcblk0p7 2>/dev/null)"
+
+[ "$(blkid -s TYPE -o value /dev/mmcblk0p6 2>/dev/null)" = "f2fs" ] && \
+[ -n "$overlay_uuid" ] && {
+	uci set fstab.overlay_ext=mount
+	uci set fstab.overlay_ext.target='/overlay'
+	uci set fstab.overlay_ext.uuid="$overlay_uuid"
+	uci set fstab.overlay_ext.fstype='f2fs'
+	uci set fstab.overlay_ext.options='noatime'
+	uci set fstab.overlay_ext.enabled='1'
+}
+
+[ "$(blkid -s TYPE -o value /dev/mmcblk0p7 2>/dev/null)" = "f2fs" ] && \
+[ -n "$data_uuid" ] && {
+	uci set fstab.emmc_data=mount
+	uci set fstab.emmc_data.target='/mnt/emmc-data'
+	uci set fstab.emmc_data.uuid="$data_uuid"
+	uci set fstab.emmc_data.fstype='f2fs'
+	uci set fstab.emmc_data.options='noatime'
+	uci set fstab.emmc_data.enabled='1'
+}
+
+mkdir -p /mnt/emmc-data
+uci commit fstab
+
+exit 0

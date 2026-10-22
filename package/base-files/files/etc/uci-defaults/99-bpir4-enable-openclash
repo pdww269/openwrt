@@ -1,0 +1,10 @@
+#!/bin/sh
+
+[ -x /etc/init.d/openclash ] && /etc/init.d/openclash enable
+
+[ -x /etc/init.d/dockerd ] && {
+	/etc/init.d/dockerd enable
+	/etc/init.d/dockerd uciadd
+}
+
+exit 0

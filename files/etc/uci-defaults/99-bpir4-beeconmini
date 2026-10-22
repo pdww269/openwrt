@@ -19,6 +19,9 @@ if ! apk info -e bxplug >/dev/null 2>&1 || \
 		"$bxplug_pkg" "$meta_pkg"
 fi
 
+sed -i '/"admin", "beeconmini"/s/_([^)]*)/_("BeeconMini")/' \
+	/usr/lib/lua/luci/controller/beeconmini.lua 2>/dev/null || true
+
 /etc/init.d/a_bxplug-ctrl enable
 /etc/init.d/a_bxplug-ctrl restart
 

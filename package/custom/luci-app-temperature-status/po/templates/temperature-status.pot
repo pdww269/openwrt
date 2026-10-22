@@ -29,16 +29,16 @@ msgstr ""
 msgid "CPU"
 msgstr ""
 
-msgid "Unavailable"
+msgid "Temperature unavailable"
 msgstr ""
 
-msgid "Critical"
+msgid "Temperature critical"
 msgstr ""
 
-msgid "Hot"
+msgid "Temperature high"
 msgstr ""
 
-msgid "Normal"
+msgid "Temperature normal"
 msgstr ""
 
 msgid "No temperature sensors found"

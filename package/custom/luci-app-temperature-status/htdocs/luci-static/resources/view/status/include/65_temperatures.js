@@ -11,7 +11,7 @@ const SENSOR_META = {
 	'mt7996_phy0.2-pci-0100': { name: _('Wi-Fi 6 GHz'), detail: 'MT7996', order: 22 },
 	'sfp1-isa-0000': { name: _('SFP WAN module'), detail: 'SFP1', order: 30 },
 	'sfp2-isa-0000': { name: _('SFP LAN module'), detail: 'SFP2', order: 31 },
-	'i2csfp111-mdio-0': { name: _('SFP WAN PHY'), detail: 'AQR113C', order: 32 },
+	'i2csfp111-mdio-0': { name: _('SFP WAN PHY'), detail: 'AQR113C', warning: 95, order: 32 },
 	'cpu_thermal': { name: _('CPU'), detail: 'SoC thermal', order: 10 }
 };
 
@@ -44,6 +44,9 @@ function sensorMeta(rawName, thermalType) {
 	if (SENSOR_META[key])
 		return SENSOR_META[key];
 
+	if (key.indexOf('i2csfp111') === 0)
+		return SENSOR_META['i2csfp111-mdio-0'];
+
 	if (thermalType === 'cpu_thermal')
 		return SENSOR_META.cpu_thermal;
 
@@ -54,14 +57,16 @@ function sensorMeta(rawName, thermalType) {
 	};
 }
 
-function sensorState(value, critical) {
+function sensorState(value, warning, critical) {
 	if (value == null)
-		return { text: _('Unavailable'), className: 'label' };
+		return { text: _('Temperature unavailable'), className: 'label' };
 	if (critical != null && value >= critical)
-		return { text: _('Critical'), className: 'label danger' };
+		return { text: _('Temperature critical'), className: 'label danger' };
+	if (warning != null && value >= warning)
+		return { text: _('Temperature high'), className: 'label warning' };
 	if (critical != null && value >= critical - 10)
-		return { text: _('Hot'), className: 'label warning' };
-	return { text: _('Normal'), className: 'label success' };
+		return { text: _('Temperature high'), className: 'label warning' };
+	return { text: _('Temperature normal'), className: 'label success' };
 }
 
 function readHwmon() {
@@ -161,7 +166,8 @@ function loadSensors() {
 				detail: meta.detail,
 				order: meta.order,
 				temp: entry.temp,
-				critical: entry.critical
+				warning: meta.warning == null ? null : meta.warning,
+				critical: meta.warning == null ? entry.critical : null
 			});
 		});
 
@@ -197,7 +203,8 @@ function renderData(root, data) {
 	}
 	else {
 		data.sensors.forEach(function(sensor) {
-			const state = sensorState(sensor.temp, sensor.critical);
+			const state = sensorState(sensor.temp, sensor.warning, sensor.critical);
+			const limit = sensor.warning == null ? sensor.critical : sensor.warning;
 
 			body.appendChild(E('tr', { 'class': 'tr' }, [
 				E('td', { 'class': 'td' }, [
@@ -206,7 +213,7 @@ function renderData(root, data) {
 					E('span', { 'class': 'temperature-detail' }, sensor.detail)
 				]),
 				E('td', { 'class': 'td temperature-reading' }, formatTemperature(sensor.temp)),
-				E('td', { 'class': 'td' }, sensor.critical == null ? '-' : formatTemperature(sensor.critical)),
+				E('td', { 'class': 'td' }, limit == null ? '-' : formatTemperature(limit)),
 				E('td', { 'class': 'td' }, E('span', { 'class': state.className }, state.text))
 			]));
 		});
@@ -218,10 +225,15 @@ function renderData(root, data) {
 	}
 
 	const pwm = data.fan.pwm == null ? null : Math.round(data.fan.pwm * 100 / 255);
-	fan.replaceChildren(
-		metric(_('Fan PWM'), pwm == null ? '-' : '%d%%'.format(pwm)),
-		metric(_('Fan speed'), data.fan.rpm == null ? '-' : '%d RPM'.format(data.fan.rpm))
-	);
+	const metrics = [
+		pwm == null ? metric(_('Fan'), _('Not detected'))
+			: metric(_('Fan PWM'), '%d%%'.format(pwm))
+	];
+
+	if (data.fan.rpm != null && data.fan.rpm > 0)
+		metrics.push(metric(_('Fan speed'), '%d RPM'.format(data.fan.rpm)));
+
+	fan.replaceChildren(...metrics);
 }
 
 return baseclass.extend({
