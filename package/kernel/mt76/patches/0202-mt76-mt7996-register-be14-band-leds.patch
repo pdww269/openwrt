@@ -1,0 +1,221 @@
+--- a/mt7996/init.c
++++ b/mt7996/init.c
+@@ -289,26 +289,21 @@
+ 	return 0;
+ }
+ 
+-static void mt7996_led_set_config(struct led_classdev *led_cdev,
+-				  u8 delay_on, u8 delay_off)
++static void mt7996_led_set_config_band(struct mt7996_dev *dev, u8 band, bool al,
++				       u8 delay_on, u8 delay_off)
+ {
+-	struct mt7996_dev *dev;
+-	struct mt76_phy *mphy;
+ 	u32 val;
+ 
+-	mphy = container_of(led_cdev, struct mt76_phy, leds.cdev);
+-	dev = container_of(mphy->dev, struct mt7996_dev, mt76);
+-
+ 	/* select TX blink mode, 2: only data frames */
+-	mt76_rmw_field(dev, MT_TMAC_TCR0(mphy->band_idx), MT_TMAC_TCR0_TX_BLINK, 2);
++	mt76_rmw_field(dev, MT_TMAC_TCR0(band), MT_TMAC_TCR0_TX_BLINK, 2);
+ 
+ 	/* enable LED */
+-	mt76_wr(dev, MT_LED_EN(mphy->band_idx), 1);
++	mt76_wr(dev, MT_LED_EN(band), 1);
+ 
+ 	/* set LED Tx blink on/off time */
+ 	val = FIELD_PREP(MT_LED_TX_BLINK_ON_MASK, delay_on) |
+ 	      FIELD_PREP(MT_LED_TX_BLINK_OFF_MASK, delay_off);
+-	mt76_wr(dev, MT_LED_TX_BLINK(mphy->band_idx), val);
++	mt76_wr(dev, MT_LED_TX_BLINK(band), val);
+ 
+ 	/* turn LED off */
+ 	if (delay_off == 0xff && delay_on == 0x0) {
+@@ -316,21 +311,35 @@
+ 	} else {
+ 		/* control LED */
+ 		val = MT_LED_CTRL_BLINK_MODE | MT_LED_CTRL_KICK;
+-		if (mphy->band_idx == MT_BAND1)
++		if (band == MT_BAND1)
+ 			val |= MT_LED_CTRL_BLINK_BAND_SEL;
+ 	}
+ 
+-	if (mphy->leds.al)
++	if (al)
+ 		val |= MT_LED_CTRL_POLARITY;
+ 
+-	mt76_wr(dev, MT_LED_CTRL(mphy->band_idx), val);
+-	mt76_clear(dev, MT_LED_CTRL(mphy->band_idx), MT_LED_CTRL_KICK);
++	mt76_wr(dev, MT_LED_CTRL(band), val);
++	mt76_clear(dev, MT_LED_CTRL(band), MT_LED_CTRL_KICK);
++}
++
++static void mt7996_band_led_set_brightness(struct led_classdev *led_cdev,
++					   enum led_brightness brightness)
++{
++	struct mt7996_band_led *led =
++		container_of(led_cdev, struct mt7996_band_led, cdev);
++
++	if (!brightness)
++		mt7996_led_set_config_band(led->dev, led->band, led->al, 0, 0xff);
++	else
++		mt7996_led_set_config_band(led->dev, led->band, led->al, 0xff, 0);
+ }
+ 
+-static int mt7996_led_set_blink(struct led_classdev *led_cdev,
+-				unsigned long *delay_on,
+-				unsigned long *delay_off)
++static int mt7996_band_led_blink_set(struct led_classdev *led_cdev,
++				     unsigned long *delay_on,
++				     unsigned long *delay_off)
+ {
++	struct mt7996_band_led *led =
++		container_of(led_cdev, struct mt7996_band_led, cdev);
+ 	u16 delta_on = 0, delta_off = 0;
+ 
+ #define HW_TICK		10
+@@ -341,18 +350,73 @@
+ 	if (*delay_off)
+ 		delta_off = TO_HW_TICK(*delay_off);
+ 
+-	mt7996_led_set_config(led_cdev, delta_on, delta_off);
++	mt7996_led_set_config_band(led->dev, led->band, led->al,
++				   delta_on, delta_off);
++
++	return 0;
++}
++
++static const char * const mt7996_band_led_names[MT7996_MAX_RADIOS] = {
++	"2g", "5g", "6g"
++};
++
++/* BE14 上的 2G/5G/6G 三颗蓝灯接在 MT7996 的 LED 引脚上，一个 band 一根，
++ * 寄存器都在同一个窗口里，所以直接从主芯片这边给三颗都注册 LED 设备。
++ */
++static int mt7996_register_band_leds(struct mt7996_dev *dev)
++{
++	struct device_node *led_np;
++	bool al = false;
++	u8 band;
++
++	led_np = of_get_child_by_name(dev->mt76.dev->of_node, "led");
++	if (led_np) {
++		al = of_property_read_bool(led_np, "led-active-low");
++		of_node_put(led_np);
++	}
++
++	for (band = 0; band < MT7996_MAX_RADIOS; band++) {
++		struct mt7996_band_led *led = &dev->band_leds[band];
++		int ret;
++
++		led->dev = dev;
++		led->band = band;
++		led->al = al;
++		snprintf(led->name, sizeof(led->name), "mt76-%s",
++			 mt7996_band_led_names[band]);
++		led->cdev.name = led->name;
++		led->cdev.max_brightness = 1;
++		led->cdev.brightness_set = mt7996_band_led_set_brightness;
++		led->cdev.blink_set = mt7996_band_led_blink_set;
++		led->cdev.default_trigger = "default-on";
++
++		ret = led_classdev_register(dev->mt76.dev, &led->cdev);
++		if (ret) {
++			dev_err(dev->mt76.dev,
++				"band led %d register failed: %d\n", band, ret);
++			led->cdev.name = NULL;
++			continue;
++		}
++
++		dev_info(dev->mt76.dev, "registered band led '%s'\n", led->name);
++	}
+ 
+ 	return 0;
+ }
+ 
+-static void mt7996_led_set_brightness(struct led_classdev *led_cdev,
+-				      enum led_brightness brightness)
++static void mt7996_unregister_band_leds(struct mt7996_dev *dev)
+ {
+-	if (!brightness)
+-		mt7996_led_set_config(led_cdev, 0, 0xff);
+-	else
+-		mt7996_led_set_config(led_cdev, 0xff, 0);
++	u8 band;
++
++	for (band = 0; band < MT7996_MAX_RADIOS; band++) {
++		struct mt7996_band_led *led = &dev->band_leds[band];
++
++		if (!led->cdev.name)
++			continue;
++
++		led_classdev_unregister(&led->cdev);
++		led->cdev.name = NULL;
++	}
+ }
+ 
+ static void __mt7996_init_txpower(struct mt7996_phy *phy,
+@@ -543,11 +607,9 @@
+ 	hw->max_tx_fragments = 4;
+ 	wiphy->txq_memory_limit = 32 << 20; /* 32 MiB */
+ 
+-	/* init led callbacks */
+-	if (IS_ENABLED(CONFIG_MT76_LEDS)) {
+-		dev->mphy.leds.cdev.brightness_set = mt7996_led_set_brightness;
+-		dev->mphy.leds.cdev.blink_set = mt7996_led_set_blink;
+-	}
++	/* LED 由 mt7996_register_band_leds() 给三个 band 各注册一颗，
++	 * 这里不再给主 wiphy 单独注册，免得和 band0 那颗抢同一组寄存器。
++	 */
+ 
+ 	wiphy->max_scan_ssids = 4;
+ 	wiphy->max_scan_ie_len = IEEE80211_MAX_DATA_LEN;
+@@ -1773,6 +1835,8 @@
+ 	if (ret)
+ 		return ret;
+ 
++	mt7996_register_band_leds(dev);
++
+ 	mt7996_for_each_phy(dev, phy)
+ 		mt7996_thermal_init(phy);
+ 
+@@ -1804,6 +1868,7 @@
+ 	mt7996_unregister_phy(mt7996_phy2(dev));
+ 	mt7996_unregister_thermal(&dev->phy);
+ 	mt7996_coredump_unregister(dev);
++	mt7996_unregister_band_leds(dev);
+ 	mt76_unregister_device(&dev->mt76);
+ 	mt7996_wed_rro_free(dev);
+ 	mt7996_mcu_exit(dev);
+--- a/mt7996/mt7996.h
++++ b/mt7996/mt7996.h
+@@ -402,6 +402,19 @@
+ 	bool rdd_tx_paused;
+ };
+ 
++/* BE14 上前三颗蓝灯(2G/5G/6G)接在 MT7996 自己的 LED 引脚上：
++ * MT_LED_CTRL(_n)/MT_LED_EN(_n)/MT_LED_TX_BLINK(_n)，_n 就是 band 号。
++ * mt76 只给 band0 的 wiphy 注册了一颗 LED，band1/band2 在本机上没有独立
++ * wiphy，所以这里自己给三个 band 各注册一颗。
++ */
++struct mt7996_band_led {
++	struct led_classdev cdev;
++	struct mt7996_dev *dev;
++	char name[24];
++	u8 band;
++	bool al;
++};
++
+ struct mt7996_dev {
+ 	union { /* must be first */
+ 		struct mt76_dev mt76;
+@@ -519,6 +532,8 @@
+ 		u8 type:4;
+ 		u8 fem:4;
+ 	} var;
++
++	struct mt7996_band_led band_leds[MT7996_MAX_RADIOS];
+ };
+ 
+ enum {
