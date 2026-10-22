@@ -9,8 +9,8 @@ const SENSOR_META = {
 	'mt7996_phy0.0-pci-0100': { name: _('Wi-Fi 2.4 GHz'), detail: 'MT7996', order: 20 },
 	'mt7996_phy0.1-pci-0100': { name: _('Wi-Fi 5 GHz'), detail: 'MT7996', order: 21 },
 	'mt7996_phy0.2-pci-0100': { name: _('Wi-Fi 6 GHz'), detail: 'MT7996', order: 22 },
-	'sfp1-isa-0000': { name: _('SFP WAN module'), detail: 'SFP1', order: 30 },
-	'sfp2-isa-0000': { name: _('SFP LAN module'), detail: 'SFP2', order: 31 },
+	'sfp1': { name: _('SFP WAN module'), detail: 'SFP1', warning: 80, order: 30 },
+	'sfp2': { name: _('SFP LAN module'), detail: 'SFP2', order: 31 },
 	'i2csfp111-mdio-0': { name: _('SFP WAN PHY'), detail: 'AQR113C', warning: 95, order: 32 },
 	'cpu_thermal': { name: _('CPU'), detail: 'SoC thermal', order: 10 }
 };
