@@ -7,7 +7,7 @@ function index()
 
 	local page
 
-	page = entry({"admin", "openclash"}, firstchild(), _("OpenClash"), 75)
+	page = entry({"admin", "openclash"}, firstchild(), _("代理"), 75)
 	page.dependent = true
 	page.acl_depends = { "luci-app-openclash" }
 	entry({"admin", "openclash", "client"},form("openclash/client"),_("Overviews"), 20).leaf = true
