@@ -1,0 +1,8 @@
+#!/bin/sh
+
+[ "$(board_name)" = "bananapi,bpi-r4" ] || exit 0
+
+/etc/init.d/istore enable
+/etc/init.d/istore boot
+
+exit 0

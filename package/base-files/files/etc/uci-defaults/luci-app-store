@@ -1,5 +1,6 @@
 #!/bin/sh
 
+/etc/init.d/istore enable
 /etc/init.d/istore boot
 
 if [ -z "`uci -q get istore.istore.hide_docker`" ] && ! which docker >/dev/null; then
