@@ -6820,7 +6820,7 @@ pre.command-output {
 [data-page="admin-services-npc"] div.cbi-value.nowrap {
   white-space: normal;
 }
-[data-page^="admin-services-openclash"] {
+[data-page^="admin-openclash"] {
   --oc-accent: var(--primary);
   --oc-accent-hover: var(--primary);
   --oc-accent-strong: var(--primary);
@@ -6840,13 +6840,13 @@ pre.command-output {
   --oc-neutral: var(--plugin-neutral);
   --oc-scrollbar: var(--plugin-scrollbar);
 }
-[data-page^="admin-services-openclash"] img[src$="arrow-clockwise-light.svg"],
-[data-page^="admin-services-openclash"] img[src$="wrench-light.svg"],
-[data-page^="admin-services-openclash"] img[src$="eye-light.svg"] {
+[data-page^="admin-openclash"] img[src$="arrow-clockwise-light.svg"],
+[data-page^="admin-openclash"] img[src$="wrench-light.svg"],
+[data-page^="admin-openclash"] img[src$="eye-light.svg"] {
   filter: var(--image-filter);
 }
 @supports (color: color-mix(in srgb, red, blue)) {
-  [data-page^="admin-services-openclash"] {
+  [data-page^="admin-openclash"] {
     --oc-accent-hover: color-mix(in srgb, var(--oc-accent) 88%, black);
     --oc-accent-strong: color-mix(in srgb, var(--oc-accent) 78%, black);
     --oc-accent-a5: color-mix(in srgb, var(--oc-accent) 5%, transparent);
@@ -6858,7 +6858,7 @@ pre.command-output {
     --oc-accent-a60: color-mix(in srgb, var(--oc-accent) 60%, transparent);
   }
 }
-[data-page^="admin-services-openclash"] .oc {
+[data-page^="admin-openclash"] .oc {
   --bg-white: var(--oc-surface) !important;
   --bg-light: var(--oc-surface) !important;
   --bg-gray: var(--oc-surface) !important;
@@ -6893,355 +6893,355 @@ pre.command-output {
   --scrollbar-thumb-hover: var(--oc-text-muted) !important;
   border-radius: var(--radius-card);
 }
-[data-page^="admin-services-openclash"] .oc .developer-container,
-[data-page^="admin-services-openclash"] .oc .subscription-info-container {
+[data-page^="admin-openclash"] .oc .developer-container,
+[data-page^="admin-openclash"] .oc .subscription-info-container {
   background: transparent !important;
 }
-[data-page^="admin-services-openclash"] .oc .announcement-card {
+[data-page^="admin-openclash"] .oc .announcement-card {
   width: auto !important;
   margin: 10px !important;
 }
-[data-page^="admin-services-openclash"] .oc .config-upload-content {
+[data-page^="admin-openclash"] .oc .config-upload-content {
   background: var(--oc-surface) !important;
 }
-[data-page^="admin-services-openclash"] .cbi-button.cbi-button-add,
-[data-page^="admin-services-openclash"] .cbi-button.cbi-button-apply,
-[data-page^="admin-services-openclash"] .cbi-button.cbi-button-edit,
-[data-page^="admin-services-openclash"] .cbi-button.cbi-button-link,
-[data-page^="admin-services-openclash"] .cbi-button.cbi-button-positive,
-[data-page^="admin-services-openclash"] .cbi-button.cbi-button-reload,
-[data-page^="admin-services-openclash"] .cbi-button.cbi-button-save,
-[data-page^="admin-services-openclash"] .cbi-button.cbi-button-action,
-[data-page^="admin-services-openclash"] input.cbi-input-apply,
-[data-page^="admin-services-openclash"] input.cbi-input-reload,
-[data-page^="admin-services-openclash"] input.cbi-input-save,
-[data-page^="admin-services-openclash"] .btn.primary {
+[data-page^="admin-openclash"] .cbi-button.cbi-button-add,
+[data-page^="admin-openclash"] .cbi-button.cbi-button-apply,
+[data-page^="admin-openclash"] .cbi-button.cbi-button-edit,
+[data-page^="admin-openclash"] .cbi-button.cbi-button-link,
+[data-page^="admin-openclash"] .cbi-button.cbi-button-positive,
+[data-page^="admin-openclash"] .cbi-button.cbi-button-reload,
+[data-page^="admin-openclash"] .cbi-button.cbi-button-save,
+[data-page^="admin-openclash"] .cbi-button.cbi-button-action,
+[data-page^="admin-openclash"] input.cbi-input-apply,
+[data-page^="admin-openclash"] input.cbi-input-reload,
+[data-page^="admin-openclash"] input.cbi-input-save,
+[data-page^="admin-openclash"] .btn.primary {
   color: var(--accent-text) !important;
   border-color: var(--oc-accent) !important;
   background: var(--oc-accent) !important;
 }
-[data-page^="admin-services-openclash"] .cbi-button.cbi-button-remove,
-[data-page^="admin-services-openclash"] .cbi-button.cbi-button-negative,
-[data-page^="admin-services-openclash"] input.cbi-input-remove {
+[data-page^="admin-openclash"] .cbi-button.cbi-button-remove,
+[data-page^="admin-openclash"] .cbi-button.cbi-button-negative,
+[data-page^="admin-openclash"] input.cbi-input-remove {
   color: var(--text-on-accent) !important;
   border-color: var(--danger-bg) !important;
   background: var(--danger-bg) !important;
 }
-[data-page^="admin-services-openclash"] .cbi-button.cbi-button-reset {
+[data-page^="admin-openclash"] .cbi-button.cbi-button-reset {
   color: var(--text-on-accent) !important;
   border-color: var(--warning-action-bg) !important;
   background: var(--warning-action-bg) !important;
 }
-[data-page^="admin-services-openclash"] .cbi-button.cbi-button-find,
-[data-page^="admin-services-openclash"] input.cbi-input-find {
+[data-page^="admin-openclash"] .cbi-button.cbi-button-find,
+[data-page^="admin-openclash"] input.cbi-input-find {
   color: var(--text-on-accent) !important;
   border-color: var(--oc-neutral) !important;
   background-color: var(--oc-neutral) !important;
 }
-[data-page^="admin-services-openclash"] #cbi-openclash .cbi-button-up,
-[data-page^="admin-services-openclash"] #cbi-openclash .cbi-button-down {
+[data-page^="admin-openclash"] #cbi-openclash .cbi-button-up,
+[data-page^="admin-openclash"] #cbi-openclash .cbi-button-down {
   border-color: var(--oc-neutral) !important;
   background-color: var(--oc-control-bg) !important;
 }
-[data-page^="admin-services-openclash"] #cbi-openclash .cbi-button-up:not(:disabled):hover,
-[data-page^="admin-services-openclash"] #cbi-openclash .cbi-button-up:not(:disabled):focus,
-[data-page^="admin-services-openclash"] #cbi-openclash .cbi-button-down:not(:disabled):hover,
-[data-page^="admin-services-openclash"] #cbi-openclash .cbi-button-down:not(:disabled):focus {
+[data-page^="admin-openclash"] #cbi-openclash .cbi-button-up:not(:disabled):hover,
+[data-page^="admin-openclash"] #cbi-openclash .cbi-button-up:not(:disabled):focus,
+[data-page^="admin-openclash"] #cbi-openclash .cbi-button-down:not(:disabled):hover,
+[data-page^="admin-openclash"] #cbi-openclash .cbi-button-down:not(:disabled):focus {
   border-color: var(--oc-accent) !important;
   background-color: var(--oc-accent-a10) !important;
   box-shadow: 0 0 0 2px var(--oc-accent-a10) !important;
 }
-[data-page^="admin-services-openclash"] input[type="checkbox"] {
+[data-page^="admin-openclash"] input[type="checkbox"] {
   border-color: var(--oc-accent) !important;
 }
-[data-page^="admin-services-openclash"] input[type="checkbox"]:checked {
+[data-page^="admin-openclash"] input[type="checkbox"]:checked {
   border-color: var(--oc-accent) !important;
   background-color: var(--oc-accent) !important;
 }
-[data-page^="admin-services-openclash"] input[type="text"],
-[data-page^="admin-services-openclash"] input[type="password"],
-[data-page^="admin-services-openclash"] input[type="number"],
-[data-page^="admin-services-openclash"] input[type="search"],
-[data-page^="admin-services-openclash"] input[type="url"],
-[data-page^="admin-services-openclash"] select,
-[data-page^="admin-services-openclash"] textarea,
-[data-page^="admin-services-openclash"] .cbi-dropdown,
-[data-page^="admin-services-openclash"] .oc .oc-input-textarea,
-[data-page^="admin-services-openclash"] .oc .sub-info-url-form-textarea,
-[data-page^="admin-services-openclash"] .oc .select-class,
-[data-page^="admin-services-openclash"] .oc .custom-option-input {
+[data-page^="admin-openclash"] input[type="text"],
+[data-page^="admin-openclash"] input[type="password"],
+[data-page^="admin-openclash"] input[type="number"],
+[data-page^="admin-openclash"] input[type="search"],
+[data-page^="admin-openclash"] input[type="url"],
+[data-page^="admin-openclash"] select,
+[data-page^="admin-openclash"] textarea,
+[data-page^="admin-openclash"] .cbi-dropdown,
+[data-page^="admin-openclash"] .oc .oc-input-textarea,
+[data-page^="admin-openclash"] .oc .sub-info-url-form-textarea,
+[data-page^="admin-openclash"] .oc .select-class,
+[data-page^="admin-openclash"] .oc .custom-option-input {
   color: var(--oc-text) !important;
   border-color: var(--control-border) !important;
   background-color: var(--oc-control-bg) !important;
 }
-[data-page^="admin-services-openclash"] input[type="text"]:focus,
-[data-page^="admin-services-openclash"] input[type="password"]:focus,
-[data-page^="admin-services-openclash"] input[type="number"]:focus,
-[data-page^="admin-services-openclash"] input[type="search"]:focus,
-[data-page^="admin-services-openclash"] input[type="url"]:focus,
-[data-page^="admin-services-openclash"] select:focus,
-[data-page^="admin-services-openclash"] textarea:focus,
-[data-page^="admin-services-openclash"] .cbi-dropdown:focus,
-[data-page^="admin-services-openclash"] .cbi-dropdown[open],
-[data-page^="admin-services-openclash"] .oc .oc-input-textarea:focus,
-[data-page^="admin-services-openclash"] .oc .sub-info-url-form-textarea:focus,
-[data-page^="admin-services-openclash"] .oc .select-class:focus,
-[data-page^="admin-services-openclash"] .oc .custom-option-input:focus {
+[data-page^="admin-openclash"] input[type="text"]:focus,
+[data-page^="admin-openclash"] input[type="password"]:focus,
+[data-page^="admin-openclash"] input[type="number"]:focus,
+[data-page^="admin-openclash"] input[type="search"]:focus,
+[data-page^="admin-openclash"] input[type="url"]:focus,
+[data-page^="admin-openclash"] select:focus,
+[data-page^="admin-openclash"] textarea:focus,
+[data-page^="admin-openclash"] .cbi-dropdown:focus,
+[data-page^="admin-openclash"] .cbi-dropdown[open],
+[data-page^="admin-openclash"] .oc .oc-input-textarea:focus,
+[data-page^="admin-openclash"] .oc .sub-info-url-form-textarea:focus,
+[data-page^="admin-openclash"] .oc .select-class:focus,
+[data-page^="admin-openclash"] .oc .custom-option-input:focus {
   border-color: var(--control-focus) !important;
   box-shadow: 0 0 0 2px var(--oc-accent-a10) !important;
   outline: 0 !important;
 }
-[data-page^="admin-services-openclash"] .CodeMirror,
-[data-page^="admin-services-openclash"] .oc .cm-editor {
+[data-page^="admin-openclash"] .CodeMirror,
+[data-page^="admin-openclash"] .oc .cm-editor {
   color: var(--oc-text) !important;
   border: 1px solid var(--oc-border) !important;
   background: var(--oc-control-bg) !important;
 }
-[data-page^="admin-services-openclash"] .CodeMirror-gutters,
-[data-page^="admin-services-openclash"] .oc .cm-gutters {
+[data-page^="admin-openclash"] .CodeMirror-gutters,
+[data-page^="admin-openclash"] .oc .cm-gutters {
   border-color: var(--oc-border) !important;
   background: var(--oc-surface-muted) !important;
 }
-[data-page^="admin-services-openclash"] .CodeMirror.CodeMirror-focused,
-[data-page^="admin-services-openclash"] .oc .cm-editor.cm-focused {
+[data-page^="admin-openclash"] .CodeMirror.CodeMirror-focused,
+[data-page^="admin-openclash"] .oc .cm-editor.cm-focused {
   border-color: var(--oc-accent) !important;
   box-shadow: 0 0 0 2px var(--oc-accent-a10) !important;
   outline: 0 !important;
 }
-[data-page^="admin-services-openclash"] .oc .radio-button input[type="radio"]:checked + label,
-[data-page^="admin-services-openclash"] .oc #tab-header > ul.cbi-tabmenu > li.cbi-tab,
-[data-page^="admin-services-openclash"] .oc #tab-header > ul.oc-tabmenu > li.oc-tab {
+[data-page^="admin-openclash"] .oc .radio-button input[type="radio"]:checked + label,
+[data-page^="admin-openclash"] .oc #tab-header > ul.cbi-tabmenu > li.cbi-tab,
+[data-page^="admin-openclash"] .oc #tab-header > ul.oc-tabmenu > li.oc-tab {
   color: var(--accent-text) !important;
   border-color: var(--oc-accent) !important;
   background: var(--oc-accent) !important;
 }
-[data-page^="admin-services-openclash"] .oc .radio-button input[type="radio"]:checked + label {
+[data-page^="admin-openclash"] .oc .radio-button input[type="radio"]:checked + label {
   box-shadow: 0 1px 2px var(--oc-accent-a10) !important;
 }
-[data-page^="admin-services-openclash"] .oc .radio-button label:hover,
-[data-page^="admin-services-openclash"] .oc #tab-header > ul.cbi-tabmenu > li:not(.cbi-tab):hover,
-[data-page^="admin-services-openclash"] .oc #tab-header > ul.cbi-tabmenu > li:not(.cbi-tab):focus,
-[data-page^="admin-services-openclash"] .oc #tab-header > ul.oc-tabmenu > li:not(.oc-tab):hover,
-[data-page^="admin-services-openclash"] .oc #tab-header > ul.oc-tabmenu > li:not(.oc-tab):focus {
+[data-page^="admin-openclash"] .oc .radio-button label:hover,
+[data-page^="admin-openclash"] .oc #tab-header > ul.cbi-tabmenu > li:not(.cbi-tab):hover,
+[data-page^="admin-openclash"] .oc #tab-header > ul.cbi-tabmenu > li:not(.cbi-tab):focus,
+[data-page^="admin-openclash"] .oc #tab-header > ul.oc-tabmenu > li:not(.oc-tab):hover,
+[data-page^="admin-openclash"] .oc #tab-header > ul.oc-tabmenu > li:not(.oc-tab):focus {
   color: var(--oc-accent) !important;
   border-color: var(--oc-accent) !important;
   background: var(--oc-accent-a10) !important;
 }
-[data-page^="admin-services-openclash"] .oc #tab-header > ul.cbi-tabmenu > li:not(.cbi-tab):hover > a,
-[data-page^="admin-services-openclash"] .oc #tab-header > ul.cbi-tabmenu > li:not(.cbi-tab):focus > a,
-[data-page^="admin-services-openclash"] .oc #tab-header > ul.oc-tabmenu > li:not(.oc-tab):hover > a,
-[data-page^="admin-services-openclash"] .oc #tab-header > ul.oc-tabmenu > li:not(.oc-tab):focus > a {
+[data-page^="admin-openclash"] .oc #tab-header > ul.cbi-tabmenu > li:not(.cbi-tab):hover > a,
+[data-page^="admin-openclash"] .oc #tab-header > ul.cbi-tabmenu > li:not(.cbi-tab):focus > a,
+[data-page^="admin-openclash"] .oc #tab-header > ul.oc-tabmenu > li:not(.oc-tab):hover > a,
+[data-page^="admin-openclash"] .oc #tab-header > ul.oc-tabmenu > li:not(.oc-tab):focus > a {
   color: var(--oc-accent) !important;
 }
-[data-page^="admin-services-openclash"] .oc .card .general .btn:hover,
-[data-page^="admin-services-openclash"] .oc #addCustomOption:hover {
+[data-page^="admin-openclash"] .oc .card .general .btn:hover,
+[data-page^="admin-openclash"] .oc #addCustomOption:hover {
   background: var(--oc-accent-hover) !important;
 }
-[data-page^="admin-services-openclash"] .oc .help-link:hover {
+[data-page^="admin-openclash"] .oc .help-link:hover {
   background: var(--oc-accent-a10) !important;
 }
-[data-page^="admin-services-openclash"] .oc .select-option[data-value="custom"] {
+[data-page^="admin-openclash"] .oc .select-option[data-value="custom"] {
   border-color: var(--oc-accent-a20) !important;
   background: var(--oc-accent-a10) !important;
 }
-[data-page^="admin-services-openclash"] .oc .select-option[data-value="custom"]:hover {
+[data-page^="admin-openclash"] .oc .select-option[data-value="custom"]:hover {
   background: var(--oc-accent-a20) !important;
 }
-[data-page^="admin-services-openclash"] .oc .announcement-banner,
-[data-page^="admin-services-openclash"] .oc .oix-announcement {
+[data-page^="admin-openclash"] .oc .announcement-banner,
+[data-page^="admin-openclash"] .oc .oix-announcement {
   background: linear-gradient(275deg, var(--oc-accent), var(--oc-accent-strong)) !important;
 }
-[data-page^="admin-services-openclash"] .oc .announcement-banner::before,
-[data-page^="admin-services-openclash"] .oc .oix-announcement::before {
+[data-page^="admin-openclash"] .oc .announcement-banner::before,
+[data-page^="admin-openclash"] .oc .oix-announcement::before {
   background: var(--oc-accent-strong) !important;
 }
-[data-page^="admin-services-openclash"] .oc #mode-icon rect[fill="#2F88FF"] {
+[data-page^="admin-openclash"] .oc #mode-icon rect[fill="#2F88FF"] {
   fill: var(--oc-accent) !important;
 }
-[data-page^="admin-services-openclash"] .oc .sub-card:hover,
-[data-page^="admin-services-openclash"] .oc .myip-ip-item:hover,
-[data-page^="admin-services-openclash"] .oc .myip-check-item:hover,
-[data-page^="admin-services-openclash"] .oc .myip-card-item:hover,
-[data-page^="admin-services-openclash"] .oc .card:hover,
-[data-page^="admin-services-openclash"] .oc .oix-header:hover,
-[data-page^="admin-services-openclash"] .oc .oix-card:hover,
-[data-page^="admin-services-openclash"] .oc .config-upload-btn-large:hover {
+[data-page^="admin-openclash"] .oc .sub-card:hover,
+[data-page^="admin-openclash"] .oc .myip-ip-item:hover,
+[data-page^="admin-openclash"] .oc .myip-check-item:hover,
+[data-page^="admin-openclash"] .oc .myip-card-item:hover,
+[data-page^="admin-openclash"] .oc .card:hover,
+[data-page^="admin-openclash"] .oc .oix-header:hover,
+[data-page^="admin-openclash"] .oc .oix-card:hover,
+[data-page^="admin-openclash"] .oc .config-upload-btn-large:hover {
   transform: none !important;
 }
-[data-page^="admin-services-openclash"] b[style*="color:green"],
-[data-page^="admin-services-openclash"] b[style*="color: green"],
-[data-page^="admin-services-openclash"] b[color="green"] {
+[data-page^="admin-openclash"] b[style*="color:green"],
+[data-page^="admin-openclash"] b[style*="color: green"],
+[data-page^="admin-openclash"] b[color="green"] {
   color: var(--oc-accent) !important;
 }
-[data-page^="admin-services-openclash"] font[style*="color:green"],
-[data-page^="admin-services-openclash"] font[style*="color: green"],
-[data-page^="admin-services-openclash"] font[color="green"] {
+[data-page^="admin-openclash"] font[style*="color:green"],
+[data-page^="admin-openclash"] font[style*="color: green"],
+[data-page^="admin-openclash"] font[color="green"] {
   color: var(--success) !important;
 }
-[data-page^="admin-services-openclash"] b[style*="color:red"],
-[data-page^="admin-services-openclash"] b[style*="color: red"],
-[data-page^="admin-services-openclash"] b[color="red"],
-[data-page^="admin-services-openclash"] font[style*="color:red"],
-[data-page^="admin-services-openclash"] font[style*="color: red"],
-[data-page^="admin-services-openclash"] font[color="red"] {
+[data-page^="admin-openclash"] b[style*="color:red"],
+[data-page^="admin-openclash"] b[style*="color: red"],
+[data-page^="admin-openclash"] b[color="red"],
+[data-page^="admin-openclash"] font[style*="color:red"],
+[data-page^="admin-openclash"] font[style*="color: red"],
+[data-page^="admin-openclash"] font[color="red"] {
   color: var(--danger) !important;
 }
-[data-page^="admin-services-openclash"] .tabs > #tool_label {
+[data-page^="admin-openclash"] .tabs > #tool_label {
   padding-top: 0;
   padding-bottom: 0;
   vertical-align: middle;
 }
-[data-page^="admin-services-openclash"] .tabs > #tool_label .tool_label_span {
+[data-page^="admin-openclash"] .tabs > #tool_label .tool_label_span {
   display: inline-flex;
   align-items: center;
 }
-[data-page^="admin-services-openclash"] .cbi-section-node-tabbed > .cbi-tabcontainer {
+[data-page^="admin-openclash"] .cbi-section-node-tabbed > .cbi-tabcontainer {
   gap: 0;
 }
-[data-page^="admin-services-openclash"] .cbi-section-node-tabbed > .cbi-tabcontainer > .cbi-value {
+[data-page^="admin-openclash"] .cbi-section-node-tabbed > .cbi-tabcontainer > .cbi-value {
   padding-top: 0.4375rem;
   padding-bottom: 0.4375rem;
 }
-[data-page^="admin-services-openclash"][data-page="admin-services-openclash-config"] .cbi-map > .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed),
-[data-page^="admin-services-openclash"][data-page="admin-services-openclash-config-subscribe"] .cbi-map > .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed),
-[data-page^="admin-services-openclash"][data-page^="admin-services-openclash-custom-dns-edit"] .cbi-map > .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed),
-[data-page^="admin-services-openclash"][data-page^="admin-services-openclash-config-subscribe-edit"] .cbi-map > .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed),
-[data-page^="admin-services-openclash"][data-page^="admin-services-openclash-groups-config"] .cbi-map > .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed),
-[data-page^="admin-services-openclash"][data-page^="admin-services-openclash-proxy-provider-config"] .cbi-map > .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed),
-[data-page^="admin-services-openclash"][data-page^="admin-services-openclash-servers-config"] .cbi-map > .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed),
-[data-page^="admin-services-openclash"][data-page^="admin-services-openclash-other-file-edit"] .cbi-map > .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed) {
+[data-page^="admin-openclash"][data-page="admin-openclash-config"] .cbi-map > .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed),
+[data-page^="admin-openclash"][data-page="admin-openclash-config-subscribe"] .cbi-map > .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed),
+[data-page^="admin-openclash"][data-page^="admin-openclash-custom-dns-edit"] .cbi-map > .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed),
+[data-page^="admin-openclash"][data-page^="admin-openclash-config-subscribe-edit"] .cbi-map > .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed),
+[data-page^="admin-openclash"][data-page^="admin-openclash-groups-config"] .cbi-map > .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed),
+[data-page^="admin-openclash"][data-page^="admin-openclash-proxy-provider-config"] .cbi-map > .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed),
+[data-page^="admin-openclash"][data-page^="admin-openclash-servers-config"] .cbi-map > .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed),
+[data-page^="admin-openclash"][data-page^="admin-openclash-other-file-edit"] .cbi-map > .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed) {
   padding-top: 1rem;
   padding-bottom: 1rem;
 }
-[data-page^="admin-services-openclash"][data-page^="admin-services-openclash-config-subscribe-edit"] [id^="cbi-openclash-"][id$="-de_ex_keyword"] > .cbi-value-field > div:not([class]) > span.cbi-checkbox {
+[data-page^="admin-openclash"][data-page^="admin-openclash-config-subscribe-edit"] [id^="cbi-openclash-"][id$="-de_ex_keyword"] > .cbi-value-field > div:not([class]) > span.cbi-checkbox {
   display: inline-flex;
   vertical-align: middle;
 }
-[data-page^="admin-services-openclash"][data-page^="admin-services-openclash-config-subscribe-edit"] [id^="cbi-openclash-"][id$="-de_ex_keyword"] > .cbi-value-field > .cbi-dropdown[multiple] {
+[data-page^="admin-openclash"][data-page^="admin-openclash-config-subscribe-edit"] [id^="cbi-openclash-"][id$="-de_ex_keyword"] > .cbi-value-field > .cbi-dropdown[multiple] {
   max-width: 100%;
 }
-[data-page^="admin-services-openclash"] #cbi-openclash > fieldset {
+[data-page^="admin-openclash"] #cbi-openclash > fieldset {
   background: none;
   padding: 0;
 }
-[data-page^="admin-services-openclash"] #cbi-openclash > fieldset > table > tbody > tr > td {
+[data-page^="admin-openclash"] #cbi-openclash > fieldset > table > tbody > tr > td {
   border: none;
   padding: 0;
 }
-[data-page^="admin-services-openclash"] #cbi-openclash > fieldset .main-card {
+[data-page^="admin-openclash"] #cbi-openclash > fieldset .main-card {
   border: none;
   box-shadow: none;
   padding: 0 10px 10px 10px;
   background: transparent;
 }
-[data-page^="admin-services-openclash"] #cbi-openclash > fieldset .myip-main-card {
+[data-page^="admin-openclash"] #cbi-openclash > fieldset .myip-main-card {
   margin: 0;
   padding: 10px;
   border: none;
   background: transparent;
 }
-[data-page^="admin-services-openclash"] #cbi-openclash > fieldset .myip-main-card .myip-section-title {
+[data-page^="admin-openclash"] #cbi-openclash > fieldset .myip-main-card .myip-section-title {
   margin: 0;
   border-width: 1px;
 }
-[data-page^="admin-services-openclash"] .sub-card .card-title {
+[data-page^="admin-openclash"] .sub-card .card-title {
   margin-top: 5px;
 }
-[data-page^="admin-services-openclash"] .oc .main-cards-container {
+[data-page^="admin-openclash"] .oc .main-cards-container {
   margin: 0 !important;
   gap: 0 !important;
 }
-[data-page^="admin-services-openclash"] .oc .config-file-bottom {
+[data-page^="admin-openclash"] .oc .config-file-bottom {
   margin-bottom: 5px;
 }
-[data-page^="admin-services-openclash"] .oc .config-file-bottom .card-actions {
+[data-page^="admin-openclash"] .oc .config-file-bottom .card-actions {
   margin-bottom: 2px !important;
 }
-[data-page^="admin-services-openclash"] .oc .card-content {
+[data-page^="admin-openclash"] .oc .card-content {
   align-items: center !important;
   justify-content: center !important;
 }
-[data-page^="admin-services-openclash"] .oc .card-controls {
+[data-page^="admin-openclash"] .oc .card-controls {
   align-self: center;
 }
-[data-page^="admin-services-openclash"] .oc .plugin-toggle-container {
+[data-page^="admin-openclash"] .oc .plugin-toggle-container {
   margin-left: inherit !important;
 }
-[data-page^="admin-services-openclash"] .oc .core-status-toggle {
+[data-page^="admin-openclash"] .oc .core-status-toggle {
   flex: 0 !important;
   min-width: auto !important;
 }
-[data-page^="admin-services-openclash"] .cbi-tabmenu > li {
+[data-page^="admin-openclash"] .cbi-tabmenu > li {
   border-right: none !important;
   margin: 0 0.4rem 0 0 !important;
 }
-[data-page^="admin-services-openclash"] .cbi-tabmenu > li:last-child {
+[data-page^="admin-openclash"] .cbi-tabmenu > li:last-child {
   margin-right: 0 !important;
 }
-[data-page^="admin-services-openclash"] #cbi-openclash .cbi-section-table-row,
-[data-page^="admin-services-openclash"] #cbi-openclash .cbi-rowstyle-1,
-[data-page^="admin-services-openclash"] #cbi-openclash .cbi-rowstyle-2,
-[data-page^="admin-services-openclash"] #cbi-openclash .cbi-tabcontainer > .cbi-value:nth-of-type(2n),
-[data-page^="admin-services-openclash"] #cbi-openclash table > tbody > tr:nth-of-type(2n) {
+[data-page^="admin-openclash"] #cbi-openclash .cbi-section-table-row,
+[data-page^="admin-openclash"] #cbi-openclash .cbi-rowstyle-1,
+[data-page^="admin-openclash"] #cbi-openclash .cbi-rowstyle-2,
+[data-page^="admin-openclash"] #cbi-openclash .cbi-tabcontainer > .cbi-value:nth-of-type(2n),
+[data-page^="admin-openclash"] #cbi-openclash table > tbody > tr:nth-of-type(2n) {
   background: var(--oc-surface) !important;
 }
-[data-page^="admin-services-openclash"] #cbi-openclash [id^="tab-header-openclash-"] {
+[data-page^="admin-openclash"] #cbi-openclash [id^="tab-header-openclash-"] {
   border-bottom-color: var(--oc-border) !important;
   background: var(--oc-surface) !important;
 }
-[data-page^="admin-services-openclash"] #cbi-openclash [id^="tab-header-openclash-"] > ul.cbi-tabmenu {
+[data-page^="admin-openclash"] #cbi-openclash [id^="tab-header-openclash-"] > ul.cbi-tabmenu {
   background: var(--oc-surface) !important;
 }
-[data-page^="admin-services-openclash"] #cbi-openclash [id^="tab-header-openclash-"] > ul.cbi-tabmenu > li {
+[data-page^="admin-openclash"] #cbi-openclash [id^="tab-header-openclash-"] > ul.cbi-tabmenu > li {
   color: var(--oc-text-muted) !important;
   border-color: var(--oc-border) !important;
   background: var(--oc-surface) !important;
 }
-[data-page^="admin-services-openclash"] #cbi-openclash [id^="tab-header-openclash-"] > ul.cbi-tabmenu > li.cbi-tab {
+[data-page^="admin-openclash"] #cbi-openclash [id^="tab-header-openclash-"] > ul.cbi-tabmenu > li.cbi-tab {
   color: var(--accent-text) !important;
   border-color: var(--oc-accent) !important;
   background: var(--oc-accent) !important;
 }
-[data-page^="admin-services-openclash"] #cbi-openclash [id^="tab-header-openclash-"] > ul.cbi-tabmenu > li.cbi-tab > a {
+[data-page^="admin-openclash"] #cbi-openclash [id^="tab-header-openclash-"] > ul.cbi-tabmenu > li.cbi-tab > a {
   color: var(--accent-text) !important;
 }
-[data-page^="admin-services-openclash"] #cbi-openclash [id^="tab-header-openclash-"] > ul.cbi-tabmenu > li:not(.cbi-tab):hover,
-[data-page^="admin-services-openclash"] #cbi-openclash [id^="tab-header-openclash-"] > ul.cbi-tabmenu > li:not(.cbi-tab):focus {
+[data-page^="admin-openclash"] #cbi-openclash [id^="tab-header-openclash-"] > ul.cbi-tabmenu > li:not(.cbi-tab):hover,
+[data-page^="admin-openclash"] #cbi-openclash [id^="tab-header-openclash-"] > ul.cbi-tabmenu > li:not(.cbi-tab):focus {
   color: var(--oc-accent) !important;
   border-color: var(--oc-accent) !important;
   background: var(--oc-accent-a10) !important;
 }
-[data-page^="admin-services-openclash"] #cbi-openclash [id^="tab-header-openclash-"] > ul.cbi-tabmenu > li:not(.cbi-tab):hover > a,
-[data-page^="admin-services-openclash"] #cbi-openclash [id^="tab-header-openclash-"] > ul.cbi-tabmenu > li:not(.cbi-tab):focus > a {
+[data-page^="admin-openclash"] #cbi-openclash [id^="tab-header-openclash-"] > ul.cbi-tabmenu > li:not(.cbi-tab):hover > a,
+[data-page^="admin-openclash"] #cbi-openclash [id^="tab-header-openclash-"] > ul.cbi-tabmenu > li:not(.cbi-tab):focus > a {
   color: var(--oc-accent) !important;
 }
-[data-page^="admin-services-openclash"] [id^="tab-header-openclash-"] > ul.cbi-tabmenu > li {
+[data-page^="admin-openclash"] [id^="tab-header-openclash-"] > ul.cbi-tabmenu > li {
   margin: 0 !important;
   border-right: 1px solid var(--oc-border) !important;
 }
-[data-page^="admin-services-openclash"] [id^="tab-header-openclash-"] + [id="tab-content"] .td.cbi-section-table-cell > p {
+[data-page^="admin-openclash"] [id^="tab-header-openclash-"] + [id="tab-content"] .td.cbi-section-table-cell > p {
   padding: 0;
 }
-[data-page^="admin-services-openclash"] #tab-content .dom {
+[data-page^="admin-openclash"] #tab-content .dom {
   padding: 0 1rem 1rem 1rem;
 }
-[data-page^="admin-services-openclash"] #cbi-openclash-dns_servers .cbi-section-table-row > .cbi-section-table-cell:last-child {
+[data-page^="admin-openclash"] #cbi-openclash-dns_servers .cbi-section-table-row > .cbi-section-table-cell:last-child {
   min-width: 7.25rem;
   white-space: nowrap;
 }
-[data-page^="admin-services-openclash"] #cbi-openclash-dns_servers .cbi-section-table-row > .cbi-section-table-cell:last-child > .cbi-button {
+[data-page^="admin-openclash"] #cbi-openclash-dns_servers .cbi-section-table-row > .cbi-section-table-cell:last-child > .cbi-button {
   margin: 0 0.125rem !important;
 }
-[data-page^="admin-services-openclash"] .cbi-input-file {
+[data-page^="admin-openclash"] .cbi-input-file {
   padding: 0.2813rem;
   width: 15rem !important;
 }
-[data-page^="admin-services-openclash"] [id="container.openclash.config.debug"] fieldset {
+[data-page^="admin-openclash"] [id="container.openclash.config.debug"] fieldset {
   border: none !important;
   padding: 1rem !important;
 }
-[data-page^="admin-services-openclash"] #diag-rc-output > pre,
-[data-page^="admin-services-openclash"] #dns-rc-output > pre {
+[data-page^="admin-openclash"] #diag-rc-output > pre,
+[data-page^="admin-openclash"] #dns-rc-output > pre {
   font-size: 0.875rem;
   color: var(--oc-text-muted);
   border: 1px solid var(--oc-border);
@@ -7250,40 +7250,40 @@ pre.command-output {
   font-family: 'Google Sans' !important;
   box-shadow: none;
 }
-[data-page^="admin-services-openclash"] #debug-rc-output > textarea {
+[data-page^="admin-openclash"] #debug-rc-output > textarea {
   font-family: 'Google Sans' !important;
 }
-[data-page^="admin-services-openclash"] .CodeMirror,
-[data-page^="admin-services-openclash"] .cm-editor {
+[data-page^="admin-openclash"] .CodeMirror,
+[data-page^="admin-openclash"] .cm-editor {
   font-size: inherit;
   font-family: 'Google Sans' !important;
 }
-[data-page^="admin-services-openclash"] .cbi-button-up,
-[data-page^="admin-services-openclash"] .cbi-button-down {
+[data-page^="admin-openclash"] .cbi-button-up,
+[data-page^="admin-openclash"] .cbi-button-down {
   padding: 0.8rem 1.5rem;
   font-size: 0;
 }
-[data-page^="admin-services-openclash"] select#CORE_VERSION,
-[data-page^="admin-services-openclash"] select#RELEASE_BRANCH {
+[data-page^="admin-openclash"] select#CORE_VERSION,
+[data-page^="admin-openclash"] select#RELEASE_BRANCH {
   width: auto;
 }
 @media screen and (max-width: 600px) {
-  [data-page^="admin-services-openclash"][data-page^="admin-services-openclash-config-subscribe-edit"] [id^="cbi-openclash-"][id$="-de_ex_keyword"] {
+  [data-page^="admin-openclash"][data-page^="admin-openclash-config-subscribe-edit"] [id^="cbi-openclash-"][id$="-de_ex_keyword"] {
     display: flex;
     flex-direction: column;
   }
-  [data-page^="admin-services-openclash"][data-page^="admin-services-openclash-config-subscribe-edit"] [id^="cbi-openclash-"][id$="-de_ex_keyword"] > label.cbi-value-title {
+  [data-page^="admin-openclash"][data-page^="admin-openclash-config-subscribe-edit"] [id^="cbi-openclash-"][id$="-de_ex_keyword"] > label.cbi-value-title {
     display: block;
     float: none;
     width: 100%;
     padding-right: 0;
     text-align: left;
   }
-  [data-page^="admin-services-openclash"][data-page^="admin-services-openclash-config-subscribe-edit"] [id^="cbi-openclash-"][id$="-de_ex_keyword"] > .cbi-value-field {
+  [data-page^="admin-openclash"][data-page^="admin-openclash-config-subscribe-edit"] [id^="cbi-openclash-"][id$="-de_ex_keyword"] > .cbi-value-field {
     width: 100%;
     min-width: 0;
   }
-  [data-page^="admin-services-openclash"][data-page^="admin-services-openclash-config-subscribe-edit"] [id^="cbi-openclash-"][id$="-de_ex_keyword"] > .cbi-value-field > .cbi-dropdown[multiple] {
+  [data-page^="admin-openclash"][data-page^="admin-openclash-config-subscribe-edit"] [id^="cbi-openclash-"][id$="-de_ex_keyword"] > .cbi-value-field > .cbi-dropdown[multiple] {
     width: 100%;
     min-width: 0;
     max-width: 100%;

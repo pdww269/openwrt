@@ -1,5 +1,5 @@
 <%+cbi/valueheader%>
-<script src="/cgi-bin/luci/admin/services/openclash/translate_js?f=common&v=0.48.002&l=<%=luci.i18n.context.lang%>"></script>
+<script src="/cgi-bin/luci/admin/openclash/translate_js?f=common&v=0.48.002&l=<%=luci.i18n.context.lang%>"></script>
 <div class="oc">
 <div class="upload-bar">
 	<label for="file_type"><%:Upload File Type%>:</label>
@@ -141,7 +141,7 @@ function backup_all_file(btn)
 {
 	ocSetBtnLoading(btn, true);
 	var xhr = new XMLHttpRequest();
-	xhr.open('GET', '<%=luci.dispatcher.build_url("admin", "services", "openclash", "backup")%>', true);
+	xhr.open('GET', '<%=luci.dispatcher.build_url("admin", "openclash", "backup")%>', true);
 	xhr.responseType = 'blob';
 	xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 	xhr.onload = function() {

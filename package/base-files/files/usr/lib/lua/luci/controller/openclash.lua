@@ -7,123 +7,123 @@ function index()
 
 	local page
 
-	page = entry({"admin", "services", "openclash"}, alias("admin", "services", "openclash", "client"), _("OpenClash"), 50)
+	page = entry({"admin", "openclash"}, firstchild(), _("OpenClash"), 75)
 	page.dependent = true
 	page.acl_depends = { "luci-app-openclash" }
-	entry({"admin", "services", "openclash", "client"},form("openclash/client"),_("Overviews"), 20).leaf = true
-	entry({"admin", "services", "openclash", "conn_status"},call("action_conn_status")).leaf=true
-	entry({"admin", "services", "openclash", "status"},call("action_status")).leaf=true
-	entry({"admin", "services", "openclash", "translate_js"},call("action_translate_js")).leaf=true
-	entry({"admin", "services", "openclash", "startlog"},call("action_start")).leaf=true
-	entry({"admin", "services", "openclash", "refresh_log"},call("action_refresh_log"))
-	entry({"admin", "services", "openclash", "del_log"},call("action_del_log"))
-	entry({"admin", "services", "openclash", "del_start_log"},call("action_del_start_log"))
-	entry({"admin", "services", "openclash", "close_all_connection"},call("action_close_all_connection"))
-	entry({"admin", "services", "openclash", "reload_firewall"},call("action_reload_firewall"))
-	entry({"admin", "services", "openclash", "save_corever_branch"},call("action_save_corever_branch"))
-	entry({"admin", "services", "openclash", "update"},call("action_update"))
-	entry({"admin", "services", "openclash", "last_version"},call("action_last_version"))
-	entry({"admin", "services", "openclash", "opupdate"},call("action_opupdate"))
-	entry({"admin", "services", "openclash", "coreupdate"},call("action_coreupdate"))
-	entry({"admin", "services", "openclash", "flush_dns_cache"}, call("action_flush_dns_cache"))
-	entry({"admin", "services", "openclash", "flush_smart_cache"}, call("action_flush_smart_cache"))
-	entry({"admin", "services", "openclash", "update_config"}, call("action_update_config"))
-	entry({"admin", "services", "openclash", "download_rule"}, call("action_download_rule"))
-	entry({"admin", "services", "openclash", "restore"}, call("action_restore_config"))
-	entry({"admin", "services", "openclash", "backup"}, call("action_backup"))
-	entry({"admin", "services", "openclash", "backup_ex_core"}, call("action_backup_ex_core"))
-	entry({"admin", "services", "openclash", "backup_only_core"}, call("action_backup_only_core"))
-	entry({"admin", "services", "openclash", "backup_only_config"}, call("action_backup_only_config"))
-	entry({"admin", "services", "openclash", "backup_only_rule"}, call("action_backup_only_rule"))
-	entry({"admin", "services", "openclash", "backup_only_proxy"}, call("action_backup_only_proxy"))
-	entry({"admin", "services", "openclash", "remove_all_core"}, call("action_remove_all_core"))
-	entry({"admin", "services", "openclash", "one_key_update"}, call("action_one_key_update"))
-	entry({"admin", "services", "openclash", "one_key_update_check"}, call("action_one_key_update_check"))
-	entry({"admin", "services", "openclash", "switch_mode"}, call("action_switch_mode"))
-	entry({"admin", "services", "openclash", "op_mode"}, call("action_op_mode"))
-	entry({"admin", "services", "openclash", "sub_info_get"}, call("sub_info_get"))
-	entry({"admin", "services", "openclash", "config_name"}, call("action_config_name"))
-	entry({"admin", "services", "openclash", "switch_config"}, call("action_switch_config"))
-	entry({"admin", "services", "openclash", "toolbar_show"}, call("action_toolbar_show"))
-	entry({"admin", "services", "openclash", "toolbar_show_sys"}, call("action_toolbar_show_sys"))
-	entry({"admin", "services", "openclash", "diag_connection"}, call("action_diag_connection"))
-	entry({"admin", "services", "openclash", "diag_dns"}, call("action_diag_dns"))
-	entry({"admin", "services", "openclash", "gen_debug_logs"}, call("action_gen_debug_logs"))
-	entry({"admin", "services", "openclash", "get_debug_logs"}, call("action_get_debug_logs"))
-	entry({"admin", "services", "openclash", "log_level"}, call("action_log_level"))
-	entry({"admin", "services", "openclash", "switch_log"}, call("action_switch_log"))
-	entry({"admin", "services", "openclash", "rule_mode"}, call("action_rule_mode"))
-	entry({"admin", "services", "openclash", "switch_rule_mode"}, call("action_switch_rule_mode"))
-	entry({"admin", "services", "openclash", "switch_run_mode"}, call("action_switch_run_mode"))
-	entry({"admin", "services", "openclash", "dashboard_type"}, call("action_dashboard_type"))
-	entry({"admin", "services", "openclash", "switch_dashboard"}, call("action_switch_dashboard"))
-	entry({"admin", "services", "openclash", "delete_dashboard"}, call("action_delete_dashboard"))
-	entry({"admin", "services", "openclash", "default_dashboard"}, call("action_default_dashboard"))
-	entry({"admin", "services", "openclash", "get_run_mode"}, call("action_get_run_mode"))
-	entry({"admin", "services", "openclash", "create_file"}, call("create_file"))
-	entry({"admin", "services", "openclash", "rename_file"}, call("rename_file"))
-	entry({"admin", "services", "openclash", "manual_stream_unlock_test"}, call("manual_stream_unlock_test"))
-	entry({"admin", "services", "openclash", "all_proxies_stream_test"}, call("all_proxies_stream_test"))
-	entry({"admin", "services", "openclash", "set_subinfo_url"}, call("set_subinfo_url"))
-	entry({"admin", "services", "openclash", "check_core"}, call("action_check_core"))
-	entry({"admin", "services", "openclash", "core_download"}, call("core_download"))
-	entry({"admin", "services", "openclash", "announcement"}, call("action_announcement"))
-	entry({"admin", "services", "openclash", "settings"},cbi("openclash/settings"),_("Plugin Settings"), 30).leaf = true
-	entry({"admin", "services", "openclash", "config-overwrite"},cbi("openclash/config-overwrite"),_("Overwrite Settings"), 40).leaf = true
-	entry({"admin", "services", "openclash", "config-subscribe"},cbi("openclash/config-subscribe"),_("Config Subscribe"), 60).leaf = true
-	entry({"admin", "services", "openclash", "servers"},cbi("openclash/servers"),nil).leaf = true
-	entry({"admin", "services", "openclash", "other-rules-edit"},cbi("openclash/other-rules-edit"), nil).leaf = true
-	entry({"admin", "services", "openclash", "custom-dns-edit"},cbi("openclash/custom-dns-edit"), nil).leaf = true
-	entry({"admin", "services", "openclash", "other-file-edit"},cbi("openclash/other-file-edit"), nil).leaf = true
-	entry({"admin", "services", "openclash", "proxy-providers-file-manage"},form("openclash/proxy-providers-file-manage"), nil).leaf = true
-	entry({"admin", "services", "openclash", "rule-providers-file-manage"},form("openclash/rule-providers-file-manage"), nil).leaf = true
-	entry({"admin", "services", "openclash", "config-subscribe-edit"},cbi("openclash/config-subscribe-edit"), nil).leaf = true
-	entry({"admin", "services", "openclash", "proxies-config"},cbi("openclash/proxies-config"), nil).leaf = true
-	entry({"admin", "services", "openclash", "proxy-groups-config"},cbi("openclash/proxy-groups-config"), nil).leaf = true
-	entry({"admin", "services", "openclash", "proxy-providers-config"},cbi("openclash/proxy-providers-config"), nil).leaf = true
-	entry({"admin", "services", "openclash", "config"},form("openclash/config"),_("Config Manage"), 80).leaf = true
-	entry({"admin", "services", "openclash", "log"},cbi("openclash/log"),_("Server Logs"), 90).leaf = true
-	entry({"admin", "services", "openclash", "myip_check"}, call("action_myip_check"))
-	entry({"admin", "services", "openclash", "website_check"}, call("action_website_check"))
-	entry({"admin", "services", "openclash", "unlock_check"}, call("action_unlock_check"))
-	entry({"admin", "services", "openclash", "unlock_services"}, call("action_unlock_services"))
-	entry({"admin", "services", "openclash", "version_history"}, call("action_version_history"))
-	entry({"admin", "services", "openclash", "addr_info"}, call("action_cdn_info"))
-	entry({"admin", "services", "openclash", "save_github_address_mod"}, call("action_save_github_address_mod"))
-	entry({"admin", "services", "openclash", "save_custom_addr"}, call("action_save_custom_addr"))
-	entry({"admin", "services", "openclash", "proxy_info"}, call("action_proxy_info"))
-	entry({"admin", "services", "openclash", "oc_settings"}, call("action_oc_settings"))
-	entry({"admin", "services", "openclash", "switch_oc_setting"}, call("action_switch_oc_setting"))
-	entry({"admin", "services", "openclash", "generate_pac"}, call("action_generate_pac"))
-	entry({"admin", "services", "openclash", "action"}, call("action_oc_action"))
-	entry({"admin", "services", "openclash", "config_file_list"}, call("action_config_file_list"))
-	entry({"admin", "services", "openclash", "config_file_read"}, call("action_config_file_read"))
-	entry({"admin", "services", "openclash", "config_file_save"}, call("action_config_file_save"))
-	entry({"admin", "services", "openclash", "upload_config"}, call("action_upload_config"))
-	entry({"admin", "services", "openclash", "restore_backup"}, call("action_restore_backup"))
-	entry({"admin", "services", "openclash", "add_subscription"}, call("action_add_subscription"))
-	entry({"admin", "services", "openclash", "config_stats"}, call("action_config_stats"))
-	entry({"admin", "services", "openclash", "runtime_stats"}, call("action_runtime_stats"))
-	entry({"admin", "services", "openclash", "template_preview"}, call("action_template_preview"))
-	entry({"admin", "services", "openclash", "subconverter_version"}, call("action_subconverter_version"))
-	entry({"admin", "services", "openclash", "generate_age_key"}, call("action_generate_age_key"))
-	entry({"admin", "services", "openclash", "cal_age_public_key"}, call("action_cal_age_public_key"))
-	entry({"admin", "services", "openclash", "add_age_config"}, call("action_add_age_config"))
-	entry({"admin", "services", "openclash", "upload_overwrite"}, call("action_upload_overwrite"))
-	entry({"admin", "services", "openclash", "overwrite_subscribe_info"}, call("action_overwrite_subscribe_info"))
-	entry({"admin", "services", "openclash", "overwrite_file_list"}, call("action_overwrite_file_list"))
-	entry({"admin", "services", "openclash", "delete_overwrite_file"}, call("delete_overwrite_file"))
-	entry({"admin", "services", "openclash", "get_subscribe_data"}, call("action_get_subscribe_data"))
-	entry({"admin", "services", "openclash", "get_subscribe_info_data"}, call("action_get_subscribe_info_data"))
-	entry({"admin", "services", "openclash", "oix_info"}, call("oix_info"))
-	entry({"admin", "services", "openclash", "oix_checkin"}, call("oix_checkin"))
-	entry({"admin", "services", "openclash", "oix_logout"}, call("oix_logout"))
-	entry({"admin", "services", "openclash", "oix_login"}, call("oix_login"))
-	entry({"admin", "services", "openclash", "oix_login_info_save"}, call("oix_login_info_save"))
-	entry({"admin", "services", "openclash", "oix_params_sync"}, call("oix_params_sync"))
-	entry({"admin", "services", "openclash", "oix_params_get"}, call("oix_params_get"))
-	entry({"admin", "services", "openclash", "theme_get"}, call("action_theme_get"))
-	entry({"admin", "services", "openclash", "theme_save"}, call("action_theme_save"))
+	entry({"admin", "openclash", "client"},form("openclash/client"),_("Overviews"), 20).leaf = true
+	entry({"admin", "openclash", "conn_status"},call("action_conn_status")).leaf=true
+	entry({"admin", "openclash", "status"},call("action_status")).leaf=true
+	entry({"admin", "openclash", "translate_js"},call("action_translate_js")).leaf=true
+	entry({"admin", "openclash", "startlog"},call("action_start")).leaf=true
+	entry({"admin", "openclash", "refresh_log"},call("action_refresh_log"))
+	entry({"admin", "openclash", "del_log"},call("action_del_log"))
+	entry({"admin", "openclash", "del_start_log"},call("action_del_start_log"))
+	entry({"admin", "openclash", "close_all_connection"},call("action_close_all_connection"))
+	entry({"admin", "openclash", "reload_firewall"},call("action_reload_firewall"))
+	entry({"admin", "openclash", "save_corever_branch"},call("action_save_corever_branch"))
+	entry({"admin", "openclash", "update"},call("action_update"))
+	entry({"admin", "openclash", "last_version"},call("action_last_version"))
+	entry({"admin", "openclash", "opupdate"},call("action_opupdate"))
+	entry({"admin", "openclash", "coreupdate"},call("action_coreupdate"))
+	entry({"admin", "openclash", "flush_dns_cache"}, call("action_flush_dns_cache"))
+	entry({"admin", "openclash", "flush_smart_cache"}, call("action_flush_smart_cache"))
+	entry({"admin", "openclash", "update_config"}, call("action_update_config"))
+	entry({"admin", "openclash", "download_rule"}, call("action_download_rule"))
+	entry({"admin", "openclash", "restore"}, call("action_restore_config"))
+	entry({"admin", "openclash", "backup"}, call("action_backup"))
+	entry({"admin", "openclash", "backup_ex_core"}, call("action_backup_ex_core"))
+	entry({"admin", "openclash", "backup_only_core"}, call("action_backup_only_core"))
+	entry({"admin", "openclash", "backup_only_config"}, call("action_backup_only_config"))
+	entry({"admin", "openclash", "backup_only_rule"}, call("action_backup_only_rule"))
+	entry({"admin", "openclash", "backup_only_proxy"}, call("action_backup_only_proxy"))
+	entry({"admin", "openclash", "remove_all_core"}, call("action_remove_all_core"))
+	entry({"admin", "openclash", "one_key_update"}, call("action_one_key_update"))
+	entry({"admin", "openclash", "one_key_update_check"}, call("action_one_key_update_check"))
+	entry({"admin", "openclash", "switch_mode"}, call("action_switch_mode"))
+	entry({"admin", "openclash", "op_mode"}, call("action_op_mode"))
+	entry({"admin", "openclash", "sub_info_get"}, call("sub_info_get"))
+	entry({"admin", "openclash", "config_name"}, call("action_config_name"))
+	entry({"admin", "openclash", "switch_config"}, call("action_switch_config"))
+	entry({"admin", "openclash", "toolbar_show"}, call("action_toolbar_show"))
+	entry({"admin", "openclash", "toolbar_show_sys"}, call("action_toolbar_show_sys"))
+	entry({"admin", "openclash", "diag_connection"}, call("action_diag_connection"))
+	entry({"admin", "openclash", "diag_dns"}, call("action_diag_dns"))
+	entry({"admin", "openclash", "gen_debug_logs"}, call("action_gen_debug_logs"))
+	entry({"admin", "openclash", "get_debug_logs"}, call("action_get_debug_logs"))
+	entry({"admin", "openclash", "log_level"}, call("action_log_level"))
+	entry({"admin", "openclash", "switch_log"}, call("action_switch_log"))
+	entry({"admin", "openclash", "rule_mode"}, call("action_rule_mode"))
+	entry({"admin", "openclash", "switch_rule_mode"}, call("action_switch_rule_mode"))
+	entry({"admin", "openclash", "switch_run_mode"}, call("action_switch_run_mode"))
+	entry({"admin", "openclash", "dashboard_type"}, call("action_dashboard_type"))
+	entry({"admin", "openclash", "switch_dashboard"}, call("action_switch_dashboard"))
+	entry({"admin", "openclash", "delete_dashboard"}, call("action_delete_dashboard"))
+	entry({"admin", "openclash", "default_dashboard"}, call("action_default_dashboard"))
+	entry({"admin", "openclash", "get_run_mode"}, call("action_get_run_mode"))
+	entry({"admin", "openclash", "create_file"}, call("create_file"))
+	entry({"admin", "openclash", "rename_file"}, call("rename_file"))
+	entry({"admin", "openclash", "manual_stream_unlock_test"}, call("manual_stream_unlock_test"))
+	entry({"admin", "openclash", "all_proxies_stream_test"}, call("all_proxies_stream_test"))
+	entry({"admin", "openclash", "set_subinfo_url"}, call("set_subinfo_url"))
+	entry({"admin", "openclash", "check_core"}, call("action_check_core"))
+	entry({"admin", "openclash", "core_download"}, call("core_download"))
+	entry({"admin", "openclash", "announcement"}, call("action_announcement"))
+	entry({"admin", "openclash", "settings"},cbi("openclash/settings"),_("Plugin Settings"), 30).leaf = true
+	entry({"admin", "openclash", "config-overwrite"},cbi("openclash/config-overwrite"),_("Overwrite Settings"), 40).leaf = true
+	entry({"admin", "openclash", "config-subscribe"},cbi("openclash/config-subscribe"),_("Config Subscribe"), 60).leaf = true
+	entry({"admin", "openclash", "servers"},cbi("openclash/servers"),nil).leaf = true
+	entry({"admin", "openclash", "other-rules-edit"},cbi("openclash/other-rules-edit"), nil).leaf = true
+	entry({"admin", "openclash", "custom-dns-edit"},cbi("openclash/custom-dns-edit"), nil).leaf = true
+	entry({"admin", "openclash", "other-file-edit"},cbi("openclash/other-file-edit"), nil).leaf = true
+	entry({"admin", "openclash", "proxy-providers-file-manage"},form("openclash/proxy-providers-file-manage"), nil).leaf = true
+	entry({"admin", "openclash", "rule-providers-file-manage"},form("openclash/rule-providers-file-manage"), nil).leaf = true
+	entry({"admin", "openclash", "config-subscribe-edit"},cbi("openclash/config-subscribe-edit"), nil).leaf = true
+	entry({"admin", "openclash", "proxies-config"},cbi("openclash/proxies-config"), nil).leaf = true
+	entry({"admin", "openclash", "proxy-groups-config"},cbi("openclash/proxy-groups-config"), nil).leaf = true
+	entry({"admin", "openclash", "proxy-providers-config"},cbi("openclash/proxy-providers-config"), nil).leaf = true
+	entry({"admin", "openclash", "config"},form("openclash/config"),_("Config Manage"), 80).leaf = true
+	entry({"admin", "openclash", "log"},cbi("openclash/log"),_("Server Logs"), 90).leaf = true
+	entry({"admin", "openclash", "myip_check"}, call("action_myip_check"))
+	entry({"admin", "openclash", "website_check"}, call("action_website_check"))
+	entry({"admin", "openclash", "unlock_check"}, call("action_unlock_check"))
+	entry({"admin", "openclash", "unlock_services"}, call("action_unlock_services"))
+	entry({"admin", "openclash", "version_history"}, call("action_version_history"))
+	entry({"admin", "openclash", "addr_info"}, call("action_cdn_info"))
+	entry({"admin", "openclash", "save_github_address_mod"}, call("action_save_github_address_mod"))
+	entry({"admin", "openclash", "save_custom_addr"}, call("action_save_custom_addr"))
+	entry({"admin", "openclash", "proxy_info"}, call("action_proxy_info"))
+	entry({"admin", "openclash", "oc_settings"}, call("action_oc_settings"))
+	entry({"admin", "openclash", "switch_oc_setting"}, call("action_switch_oc_setting"))
+	entry({"admin", "openclash", "generate_pac"}, call("action_generate_pac"))
+	entry({"admin", "openclash", "action"}, call("action_oc_action"))
+	entry({"admin", "openclash", "config_file_list"}, call("action_config_file_list"))
+	entry({"admin", "openclash", "config_file_read"}, call("action_config_file_read"))
+	entry({"admin", "openclash", "config_file_save"}, call("action_config_file_save"))
+	entry({"admin", "openclash", "upload_config"}, call("action_upload_config"))
+	entry({"admin", "openclash", "restore_backup"}, call("action_restore_backup"))
+	entry({"admin", "openclash", "add_subscription"}, call("action_add_subscription"))
+	entry({"admin", "openclash", "config_stats"}, call("action_config_stats"))
+	entry({"admin", "openclash", "runtime_stats"}, call("action_runtime_stats"))
+	entry({"admin", "openclash", "template_preview"}, call("action_template_preview"))
+	entry({"admin", "openclash", "subconverter_version"}, call("action_subconverter_version"))
+	entry({"admin", "openclash", "generate_age_key"}, call("action_generate_age_key"))
+	entry({"admin", "openclash", "cal_age_public_key"}, call("action_cal_age_public_key"))
+	entry({"admin", "openclash", "add_age_config"}, call("action_add_age_config"))
+	entry({"admin", "openclash", "upload_overwrite"}, call("action_upload_overwrite"))
+	entry({"admin", "openclash", "overwrite_subscribe_info"}, call("action_overwrite_subscribe_info"))
+	entry({"admin", "openclash", "overwrite_file_list"}, call("action_overwrite_file_list"))
+	entry({"admin", "openclash", "delete_overwrite_file"}, call("delete_overwrite_file"))
+	entry({"admin", "openclash", "get_subscribe_data"}, call("action_get_subscribe_data"))
+	entry({"admin", "openclash", "get_subscribe_info_data"}, call("action_get_subscribe_info_data"))
+	entry({"admin", "openclash", "oix_info"}, call("oix_info"))
+	entry({"admin", "openclash", "oix_checkin"}, call("oix_checkin"))
+	entry({"admin", "openclash", "oix_logout"}, call("oix_logout"))
+	entry({"admin", "openclash", "oix_login"}, call("oix_login"))
+	entry({"admin", "openclash", "oix_login_info_save"}, call("oix_login_info_save"))
+	entry({"admin", "openclash", "oix_params_sync"}, call("oix_params_sync"))
+	entry({"admin", "openclash", "oix_params_get"}, call("oix_params_get"))
+	entry({"admin", "openclash", "theme_get"}, call("action_theme_get"))
+	entry({"admin", "openclash", "theme_save"}, call("action_theme_save"))
 end
 
 local SYS = require "luci.sys"

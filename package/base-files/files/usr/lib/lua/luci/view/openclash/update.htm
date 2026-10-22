@@ -1,7 +1,7 @@
 <%
     local version_tab = (self and self.version_tab) or false
 %>
-<script src="/cgi-bin/luci/admin/services/openclash/translate_js?f=common&v=0.48.002&l=<%=luci.i18n.context.lang%>"></script>
+<script src="/cgi-bin/luci/admin/openclash/translate_js?f=common&v=0.48.002&l=<%=luci.i18n.context.lang%>"></script>
 <link rel="stylesheet" href="/luci-static/resources/openclash/css/oc-common.css?v=0.48.002">
 <%
     -- update popup CSS rides along with update.js; on the settings version tab the popup
@@ -216,5 +216,5 @@
 
 <script src="/luci-static/resources/openclash/js/oc-icons.js?v=0.48.002"></script>
 <script>
-ocLazyScriptOnView(document.getElementById('selectPopup'), '/cgi-bin/luci/admin/services/openclash/translate_js?f=update&v=0.48.002&l=<%=luci.i18n.context.lang%>', '/luci-static/resources/openclash/css/oc-update.css?v=0.48.002');
+ocLazyScriptOnView(document.getElementById('selectPopup'), '/cgi-bin/luci/admin/openclash/translate_js?f=update&v=0.48.002&l=<%=luci.i18n.context.lang%>', '/luci-static/resources/openclash/css/oc-update.css?v=0.48.002');
 </script>

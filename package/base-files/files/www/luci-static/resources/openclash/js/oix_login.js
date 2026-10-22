@@ -2,13 +2,13 @@
 // <%:Message%> markers and <%=...%> islands are compiled server-side by the "openclash/translate_js" controller action.
 
 var OIX_URLS = {
-    info: '<%=url("admin", "services", "openclash", "oix_info")%>',
-    login: '<%=url("admin", "services", "openclash", "oix_login")%>',
-    logout: '<%=url("admin", "services", "openclash", "oix_logout")%>',
-    save: '<%=url("admin", "services", "openclash", "oix_login_info_save")%>',
-    checkin: '<%=url("admin", "services", "openclash", "oix_checkin")%>',
-    params: '<%=url("admin", "services", "openclash", "oix_params_sync")%>',
-    paramsGet: '<%=url("admin", "services", "openclash", "oix_params_get")%>'
+    info: '<%=url("admin", "openclash", "oix_info")%>',
+    login: '<%=url("admin", "openclash", "oix_login")%>',
+    logout: '<%=url("admin", "openclash", "oix_logout")%>',
+    save: '<%=url("admin", "openclash", "oix_login_info_save")%>',
+    checkin: '<%=url("admin", "openclash", "oix_checkin")%>',
+    params: '<%=url("admin", "openclash", "oix_params_sync")%>',
+    paramsGet: '<%=url("admin", "openclash", "oix_params_get")%>'
 };
 
 var OixCloud = {

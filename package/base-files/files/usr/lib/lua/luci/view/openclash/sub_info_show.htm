@@ -301,7 +301,7 @@ function sub_info_refresh_<%=idname%>(force) {
         document.getElementById('<%=idname%>').innerHTML = sk_<%=idname%>;
     }
 
-    XHR.get('<%=luci.dispatcher.build_url("admin", "services", "openclash", "sub_info_get")%>', {filename: "<%=filename%>"}, function(x, status) {
+    XHR.get('<%=luci.dispatcher.build_url("admin", "openclash", "sub_info_get")%>', {filename: "<%=filename%>"}, function(x, status) {
         var hasData = (x && x.status == 200 && status.providers.length > 0);
         var needsErrorHandling = !hasData;
         if (hasData) {
@@ -336,7 +336,7 @@ function sub_info_refresh_<%=idname%>(force) {
 
 function setUrlConfig_<%=idname%>() {
     if (typeof SubscriptionUrlSetter === 'undefined') {
-        ocRequireScript('/cgi-bin/luci/admin/services/openclash/translate_js?f=config_upload&v=0.48.002&l=<%=luci.i18n.context.lang%>', setUrlConfig_<%=idname%>);
+        ocRequireScript('/cgi-bin/luci/admin/openclash/translate_js?f=config_upload&v=0.48.002&l=<%=luci.i18n.context.lang%>', setUrlConfig_<%=idname%>);
         return false;
     }
     SubscriptionUrlSetter.show("<%=filename%>", "sub_info_refresh_<%=idname%>(true)");
@@ -345,12 +345,12 @@ function setUrlConfig_<%=idname%>() {
 
 function uploadConfig_<%=idname%>() {
     if (typeof ConfigUploader === 'undefined') {
-        ocRequireScript('/cgi-bin/luci/admin/services/openclash/translate_js?f=config_upload&v=0.48.002&l=<%=luci.i18n.context.lang%>', uploadConfig_<%=idname%>);
+        ocRequireScript('/cgi-bin/luci/admin/openclash/translate_js?f=config_upload&v=0.48.002&l=<%=luci.i18n.context.lang%>', uploadConfig_<%=idname%>);
         return false;
     }
     var filename = "<%=filename%>";
     var cb = "sub_info_refresh_<%=idname%>(true)";
-    XHR.get('<%=luci.dispatcher.build_url("admin", "services", "openclash", "get_subscribe_data")%>', {
+    XHR.get('<%=luci.dispatcher.build_url("admin", "openclash", "get_subscribe_data")%>', {
         filename: filename
     }, function(x, status) {
         if (ConfigUploader.showEditSubscribe) {

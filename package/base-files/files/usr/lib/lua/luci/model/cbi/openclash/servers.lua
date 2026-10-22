@@ -12,14 +12,14 @@ local function commit_all()
 end
 
 if not file_path then
-	HTTP.redirect(DISP.build_url("admin", "services", "openclash", "config"))
+	HTTP.redirect(DISP.build_url("admin", "openclash", "config"))
 	return
 end
 
 m = Map(openclash, translate("Servers & Groups manage"))
 m.uci = uci
 m.pageaction = false
-m.redirect = DISP.build_url("admin/services/openclash/servers") .. "?file=" .. HTTP.urlencode(file_path)
+m.redirect = DISP.build_url("admin/openclash/servers") .. "?file=" .. HTTP.urlencode(file_path)
 m.description=translate("Attention:")..
 "<br/>"..translate("1. Before modifying the configuration file, please click the button below to read the configuration file")..
 "<br/>"..translate("2. Proxy-providers address can be directly filled in the subscription link")..
@@ -34,7 +34,7 @@ gs.anonymous = true
 gs.addremove = true
 gs.sortable = true
 gs.template = "openclash/tblsection"
-gs.extedit = DISP.build_url("admin/services/openclash/proxy-groups-config/%s").."?file="..file_path
+gs.extedit = DISP.build_url("admin/openclash/proxy-groups-config/%s").."?file="..file_path
 function gs.create(self, section)
 	local sid = TypedSection.create(self, section)
 	if sid then
@@ -77,7 +77,7 @@ ps.anonymous = true
 ps.addremove = true
 ps.sortable = true
 ps.template = "openclash/tblsection"
-ps.extedit = DISP.build_url("admin/services/openclash/proxy-providers-config/%s").."?file="..file_path
+ps.extedit = DISP.build_url("admin/openclash/proxy-providers-config/%s").."?file="..file_path
 function ps.create(self, section)
 	local sid = TypedSection.create(self, section)
 	if sid then
@@ -119,7 +119,7 @@ ss.anonymous = true
 ss.addremove = true
 ss.sortable = true
 ss.template = "openclash/tblsection"
-ss.extedit = DISP.build_url("admin/services/openclash/proxies-config/%s").."?file="..file_path
+ss.extedit = DISP.build_url("admin/openclash/proxies-config/%s").."?file="..file_path
 function ss.create(self, section)
 	local sid = TypedSection.create(self, section)
 	if sid then
@@ -259,7 +259,7 @@ o = a:option(Button,"Back", " ")
 o.inputtitle = translate("Back Settings")
 o.inputstyle = "apply"
 o.write = function()
-	HTTP.redirect(DISP.build_url("admin", "services", "openclash", "config"))
+	HTTP.redirect(DISP.build_url("admin", "openclash", "config"))
 end
 
 local render_children = m.render_children

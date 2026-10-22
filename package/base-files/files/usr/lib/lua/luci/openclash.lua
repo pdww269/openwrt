@@ -782,7 +782,7 @@ OC_VERSION = "0.48.002"
 function render_page_head()
 	local lang = i18n.context and i18n.context.lang or ""
 	HTTP.write(string.format([[
-<script src="/cgi-bin/luci/admin/services/openclash/translate_js?f=common&v=%s&l=%s"></script>
+<script src="/cgi-bin/luci/admin/openclash/translate_js?f=common&v=%s&l=%s"></script>
 <link rel="stylesheet" href="/luci-static/resources/openclash/css/oc-common.css?v=%s">
 ]], OC_VERSION, lang, OC_VERSION))
 end

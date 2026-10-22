@@ -11,7 +11,7 @@ local uuid = luci.sys.exec("cat /proc/sys/kernel/random/uuid")
 local file_path = fs.get_file_path_from_request()
 
 if not file_path then
-	HTTP.redirect(DISP.build_url("admin", "services", "openclash", "servers"))
+	HTTP.redirect(DISP.build_url("admin", "openclash", "servers"))
 	return
 end
 
@@ -177,7 +177,7 @@ end
 m = Map(openclash, translate("Edit Server"))
 m.uci = uci
 m.pageaction = false
-m.redirect = DISP.build_url("admin/services/openclash/servers") .. "?file=" .. HTTP.urlencode(file_path)
+m.redirect = DISP.build_url("admin/openclash/servers") .. "?file=" .. HTTP.urlencode(file_path)
 
 if m.uci:get(openclash, sid) ~= "proxies" then
 	HTTP.redirect(m.redirect)

@@ -8,7 +8,7 @@
 		btn.disabled = true;
 		btn.value    = '<%:Flushing...%> ';
 		if (statusEl) { statusEl.textContent = ''; statusEl.className = 'oc-flush-status'; }
-		XHR.get('<%=luci.dispatcher.build_url("admin", "services", "openclash","flush_dns_cache")%>',
+		XHR.get('<%=luci.dispatcher.build_url("admin", "openclash","flush_dns_cache")%>',
 			null,
 			function(x,status)
 			{

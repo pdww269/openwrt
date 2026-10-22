@@ -30,7 +30,7 @@
         el.className = 'oc-flush-status' + (msg && !ok ? ' err' : '');
     }
 
-    XHR.get('<%=luci.dispatcher.build_url("admin", "services", "openclash", "dashboard_type")%>', null, function(x, status) {
+    XHR.get('<%=luci.dispatcher.build_url("admin", "openclash", "dashboard_type")%>', null, function(x, status) {
         if (!x || x.status != 200) return;
 
         var switchLabel;
@@ -62,7 +62,7 @@
         var origLabel = btn.value;
         btn.disabled = true;
         btn.value = '<%:Downloading File...%>';
-        XHR.get('<%=luci.dispatcher.build_url("admin", "services", "openclash", "switch_dashboard")%>', {name: n, type: type}, function(x, status) {
+        XHR.get('<%=luci.dispatcher.build_url("admin", "openclash", "switch_dashboard")%>', {name: n, type: type}, function(x, status) {
             btn.disabled = false;
             if (!x || x.status != 200) { btn.value = origLabel; setStatus('<%:Switch Failed%>', false); return; }
             if (status.download_state == "0") {
@@ -100,7 +100,7 @@
             if (choice !== 'ok') return;
             setStatus('', true);
             btn.disabled = true;
-            XHR.get('<%=luci.dispatcher.build_url("admin", "services", "openclash", "delete_dashboard")%>', {name: n}, function(x, status) {
+            XHR.get('<%=luci.dispatcher.build_url("admin", "openclash", "delete_dashboard")%>', {name: n}, function(x, status) {
                 if (!x || x.status != 200) { btn.disabled = false; return; }
                 if (status.delete_state == "1") {
                     var defBtn = document.getElementById('default_dashboard_' + n).firstElementChild;
@@ -114,7 +114,7 @@
 
     window.default_dashboard = window.default_dashboard || function(btn, n) {
         btn.disabled = true;
-        XHR.get('<%=luci.dispatcher.build_url("admin", "services", "openclash", "default_dashboard")%>', {name: n}, function(x, status) {
+        XHR.get('<%=luci.dispatcher.build_url("admin", "openclash", "default_dashboard")%>', {name: n}, function(x, status) {
             if (!x || x.status != 200) { btn.disabled = false; return; }
             btn.value = '<%:Default%>';
             btn.dataset.isDefault = '1';

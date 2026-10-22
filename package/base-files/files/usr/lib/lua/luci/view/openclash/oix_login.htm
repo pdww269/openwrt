@@ -15,7 +15,7 @@ end
 <div class="oc">
 	<link rel="stylesheet" href="/luci-static/resources/openclash/css/oc-common.css?v=0.48.002">
 	<link rel="stylesheet" href="/luci-static/resources/openclash/css/oc-settings.css?v=0.48.002">
-	<script src="/cgi-bin/luci/admin/services/openclash/translate_js?f=common&v=0.48.002&l=<%=luci.i18n.context.lang%>"></script>
+	<script src="/cgi-bin/luci/admin/openclash/translate_js?f=common&v=0.48.002&l=<%=luci.i18n.context.lang%>"></script>
 	<fieldset class="cbi-section oix-panel">
 		<div id="oix-msg-bar" class="oix-msg-bar oc-hidden"></div>
 		<div id="oix-login-section" class="<%= logged_in and 'oc-hidden' or '' %>">
@@ -241,4 +241,4 @@ window.ocOixBoot = {
     defaultParams: '<%= oix_default_params %>'
 };
 //]]></script>
-<script src="/cgi-bin/luci/admin/services/openclash/translate_js?f=oix_login&v=0.48.002&l=<%=luci.i18n.context.lang%>"></script>
+<script src="/cgi-bin/luci/admin/openclash/translate_js?f=oix_login&v=0.48.002&l=<%=luci.i18n.context.lang%>"></script>

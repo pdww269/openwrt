@@ -10,7 +10,7 @@ local fs = require "luci.openclash"
 local file_path = fs.get_file_path_from_request()
 
 if not file_path then
-	HTTP.redirect(DISP.build_url("admin", "services", "openclash", "servers"))
+	HTTP.redirect(DISP.build_url("admin", "openclash", "servers"))
 	return
 end
 
@@ -22,7 +22,7 @@ bold_off = [[</strong>]]
 m = Map(openclash, translate("Edit Proxy-Provider"))
 m.uci = uci
 m.pageaction = false
-m.redirect = DISP.build_url("admin/services/openclash/servers") .. "?file=" .. HTTP.urlencode(file_path)
+m.redirect = DISP.build_url("admin/openclash/servers") .. "?file=" .. HTTP.urlencode(file_path)
 if m.uci:get(openclash, sid) ~= "proxy_providers" then
 	HTTP.redirect(m.redirect)
 	return

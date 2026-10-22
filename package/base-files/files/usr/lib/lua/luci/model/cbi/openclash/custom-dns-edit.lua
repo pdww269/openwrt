@@ -16,7 +16,7 @@ bold_off = [[</strong>]]
 
 m = Map(openclash, translate("Add Custom DNS Servers"))
 m.pageaction = false
-m.redirect = DISP.build_url("admin/services/openclash/config-overwrite")
+m.redirect = DISP.build_url("admin/openclash/config-overwrite")
 if m.uci:get(openclash, sid) ~= "dns_servers" then
 	HTTP.redirect(m.redirect)
 	return

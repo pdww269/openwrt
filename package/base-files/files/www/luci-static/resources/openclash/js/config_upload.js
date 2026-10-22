@@ -157,7 +157,7 @@ var SubscriptionUrlSetter = {
             }
         }
 
-        XHR.get('<%=url("admin", "services", "openclash", "set_subinfo_url")%>', {
+        XHR.get('<%=url("admin", "openclash", "set_subinfo_url")%>', {
             filename: this.filename,
             url: newUrl
         }, function(x, status) {
@@ -202,7 +202,7 @@ var SubscriptionUrlSetter = {
             if (existingData.url_result) self.handleSubURL(existingData.url_result);
         };
 
-        XHR.get('<%=url("admin", "services", "openclash", "get_subscribe_info_data")%>', {
+        XHR.get('<%=url("admin", "openclash", "get_subscribe_info_data")%>', {
             filename: this.filename
         }, function(x, status) {
             if (x && x.status == 200 && status) {
@@ -974,7 +974,7 @@ var SubPanel = {
         this.ensureLogView(hostId, function() {
             ocHideLoading(self.el(hostId));
             self.clearLog(hostId);
-            XHR.get('<%=url("admin", "services", "openclash", "del_start_log")%>', null, function() {
+            XHR.get('<%=url("admin", "openclash", "del_start_log")%>', null, function() {
                 self.openLogStream(hostId, script, onReady);
             });
         });
@@ -985,7 +985,7 @@ var SubPanel = {
     openLogStream: function(hostId, script, onReady) {
         var self = this;
         var stream = ocCreateLogStream({
-            url: '<%=url("admin", "services", "openclash", "startlog")%>',
+            url: '<%=url("admin", "openclash", "startlog")%>',
             script: script,
             initialMessage: null,
             skipLines: this.logLineCount,
@@ -1265,7 +1265,7 @@ var SubPanel = {
 
     refreshSubInfo: function(name) {
         var self = this;
-        XHR.get('<%=url("admin", "services", "openclash", "sub_info_get")%>', {
+        XHR.get('<%=url("admin", "openclash", "sub_info_get")%>', {
             filename: name
         }, function(x, data) {
             self.resultLoadDone();
@@ -1355,7 +1355,7 @@ var SubPanel = {
         var nameEl = this.el('sub-result-name');
         if (nameEl) nameEl.textContent = /\.ya?ml$/i.test(params.name) ? params.name : params.name + '.yaml';
         this.renderChips(params);
-        XHR.get('<%=url("admin", "services", "openclash", "config_stats")%>', {
+        XHR.get('<%=url("admin", "openclash", "config_stats")%>', {
             filename: params.name
         }, function(x, data) {
             if (x && x.status == 200 && data && data.status === 'success') {
@@ -1429,7 +1429,7 @@ var SubPanel = {
     renderRuntimeStats: function(attempt) {
         var self = this;
         attempt = attempt || 0;
-        XHR.get('<%=url("admin", "services", "openclash", "runtime_stats")%>', null, function(x, data) {
+        XHR.get('<%=url("admin", "openclash", "runtime_stats")%>', null, function(x, data) {
             var online = x && x.status == 200 && data && data.status === 'success' && data.online;
             var groups = (data && data.structure && data.structure.groups) || [];
             var empty = online && (!data.nodes || !data.nodes.total) && !groups.length;
@@ -1451,7 +1451,7 @@ var SubPanel = {
     renderStaticStats: function() {
         var self = this;
         var params = this.lastParams;
-        XHR.get('<%=url("admin", "services", "openclash", "config_stats")%>', {
+        XHR.get('<%=url("admin", "openclash", "config_stats")%>', {
             filename: params ? params.name : '',
             static: '1'
         }, function(x, data) {
@@ -1474,7 +1474,7 @@ var SubPanel = {
         var self = this;
         setTimeout(function() {
             if (self.lastParams !== params || self.view !== 'result') return;
-            XHR.get('<%=url("admin", "services", "openclash", "runtime_stats")%>', null, function(x, data) {
+            XHR.get('<%=url("admin", "openclash", "runtime_stats")%>', null, function(x, data) {
                 var online = x && x.status == 200 && data && data.status === 'success' && data.online;
                 if (online && self.lastParams === params && self.view === 'result') self.renderRuntime(data);
             });
@@ -1750,7 +1750,7 @@ var SubPanel = {
         this.stopPoll();
         this.startTimer('sw-elapsed', 0);
         this.startStream('sw-log-host', 'init');
-        XHR.get('<%=url("admin", "services", "openclash", "switch_config")%>', {
+        XHR.get('<%=url("admin", "openclash", "switch_config")%>', {
             config_file: '/etc/openclash/config/' + name + '.yaml'
         }, function(x, data) {
             if (x && x.status == 200 && data && data.status === 'success') {
@@ -1818,7 +1818,7 @@ var SubPanel = {
                 self.pollRuntime(attempt + 1);
             }, 1500);
         };
-        xhr.open('GET', '<%=url("admin", "services", "openclash", "runtime_stats")%>', true);
+        xhr.open('GET', '<%=url("admin", "openclash", "runtime_stats")%>', true);
         xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         xhr.send();
     },
@@ -1993,7 +1993,7 @@ var TemplatePreview = {
         }
         ocShowLoading(content, '<%:Loading...%>', 160);
         this.setRefreshing(true);
-        XHR.get('<%=url("admin", "services", "openclash", "template_preview")%>', {
+        XHR.get('<%=url("admin", "openclash", "template_preview")%>', {
             name: name,
             url: url,
             force: force ? '1' : ''
@@ -2572,7 +2572,7 @@ var ConfigUploader = {
                 customInput: convertAddressCustom,
                 enable: subConvertEnable,
                 status: subVersionStatus,
-                proxyURL: '<%=url("admin", "services", "openclash", "subconverter_version")%>',
+                proxyURL: '<%=url("admin", "openclash", "subconverter_version")%>',
                 labels: {
                     checking: '<%:Checking backend version...%>',
                     versionPrefix: '<%:Backend Version%>',
@@ -2668,7 +2668,7 @@ var ConfigUploader = {
                 var algo = document.getElementById('age-algo-select') ? document.getElementById('age-algo-select').value : 'keygen';
                 ageGenerateBtn.disabled = true;
                 self.setAgeError('');
-                XHR.get('<%=url("admin", "services", "openclash", "generate_age_key")%>', {
+                XHR.get('<%=url("admin", "openclash", "generate_age_key")%>', {
                     algo: algo
                 }, function(x, data) {
                     ageGenerateBtn.disabled = false;
@@ -2710,7 +2710,7 @@ var ConfigUploader = {
                 if (secret === '') { self.setAgeError('<%:Please enter the Age Secret Key to calculate the public key!%>'); return; }
                 ageCalPublic.disabled = true;
                 self.setAgeError('');
-                XHR.get('<%=url("admin", "services", "openclash", "cal_age_public_key")%>', {
+                XHR.get('<%=url("admin", "openclash", "cal_age_public_key")%>', {
                     secret: secret
                 }, function(x, data) {
                     ageCalPublic.disabled = false;
@@ -2880,7 +2880,7 @@ var ConfigUploader = {
         SubPanel.clearResult();
         SubPanel.setView('result');
         SubPanel.startResultLoading();
-        XHR.get('<%=url("admin", "services", "openclash", "get_subscribe_data")%>', {
+        XHR.get('<%=url("admin", "openclash", "get_subscribe_data")%>', {
             filename: filename
         }, function(x, data) {
             var params = { name: filename, sub_convert: '0', plain: true };
@@ -3541,7 +3541,7 @@ var ConfigUploader = {
             var agePublic = advFileChecked ? (document.getElementById('age-public-input').value || '') : '';
             var ageAlgoEl = document.getElementById('age-algo-select'), ageAlgo = advFileChecked ? (ageAlgoEl ? ageAlgoEl.value : '') : '';
 
-            XHR.get('<%=url("admin", "services", "openclash", "add_age_config")%>', {
+            XHR.get('<%=url("admin", "openclash", "add_age_config")%>', {
                 name: filename,
                 age_secret: ageSecret,
                 age_public: agePublic,
@@ -3572,7 +3572,7 @@ var ConfigUploader = {
                 return;
             }
             var targetName = /\.ya?ml$/i.test(filename) ? filename : filename + '.yaml';
-            XHR.get('<%=url("admin", "services", "openclash", "create_file")%>', {
+            XHR.get('<%=url("admin", "openclash", "create_file")%>', {
                 filename: targetName,
                 filepath: '/etc/openclash/config/'
             }, function(x, status) {
@@ -3599,7 +3599,7 @@ var ConfigUploader = {
         var formData = new FormData();
         formData.append('config_file', this.selectedFile, filename);
 
-        fetch('<%=url("admin", "services", "openclash", "upload_config")%>', {
+        fetch('<%=url("admin", "openclash", "upload_config")%>', {
             method: 'POST',
             body: formData
         })
@@ -3788,7 +3788,7 @@ var ConfigUploader = {
         };
         this.lastParams = params;
 
-        XHR.get('<%=url("admin", "services", "openclash", "add_age_config")%>', {
+        XHR.get('<%=url("admin", "openclash", "add_age_config")%>', {
             name: filename,
             age_secret: ageSecret,
             age_public: agePublic,
@@ -3814,9 +3814,9 @@ var ConfigUploader = {
         SubPanel.resetStage();
         SubPanel.startTimer('sub-elapsed', 0);
         SubPanel.startStream('sub-log-host', 'openclash.sh', function() {
-            XHR.get('<%=url("admin", "services", "openclash", "add_subscription")%>', params, function(x, data) {
+            XHR.get('<%=url("admin", "openclash", "add_subscription")%>', params, function(x, data) {
                 if (x && x.status == 200 && data && data.status === 'success') {
-                    XHR.get('<%=url("admin", "services", "openclash", "update_config")%>', {
+                    XHR.get('<%=url("admin", "openclash", "update_config")%>', {
                         filename: params.name,
                         no_restart: '1'
                     }, function(x2, data2) {
@@ -3893,7 +3893,7 @@ var ConfigUploader = {
         if (!this.lastParams) return;
         var self = this;
         SubPanel.startResultLoading();
-        XHR.get('<%=url("admin", "services", "openclash", "config_stats")%>', {
+        XHR.get('<%=url("admin", "openclash", "config_stats")%>', {
             filename: this.lastParams.name
         }, function(x, data) {
             if (x && x.status == 200 && data && data.status === 'success') {
@@ -4160,7 +4160,7 @@ var CoreStartFlow = {
             self.applyViewSample(xhr, data, attempt);
             self.viewPollTimer = setTimeout(function() { self.viewPoll(attempt + 1); }, 1500);
         };
-        xhr.open('GET', '<%=url("admin", "services", "openclash", "runtime_stats")%>', true);
+        xhr.open('GET', '<%=url("admin", "openclash", "runtime_stats")%>', true);
         xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         xhr.send();
     },
