@@ -3,7 +3,7 @@
 		"description": "MediaTek SoC, PPE and port status",
 		"read": {
 			"ubus": {
-				"luci.mtk_soc": [ "getStatus", "getPorts", "getPpeEntries" ]
+				"luci.mtk_soc": [ "getStatus", "getPorts", "getGdm", "getPpeEntries" ]
 			}
 		},
 		"write": {

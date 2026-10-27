@@ -227,6 +227,55 @@ get_ports() {
 	json_dump
 }
 
+get_gdm() {
+	local index ifname path fixed_speed speed carrier operstate rx_bytes tx_bytes
+	local rx_packets tx_packets rx_errors tx_errors rx_dropped tx_dropped
+
+	json_init
+	json_add_array gdm
+	while IFS='|' read -r index ifname path fixed_speed; do
+		[ -d "/sys/class/net/$ifname" ] || continue
+
+		speed=$(read_num "/sys/class/net/$ifname/speed")
+		[ "$speed" -gt 0 ] || speed=$fixed_speed
+		carrier=$(read_file "/sys/class/net/$ifname/carrier")
+		operstate=$(read_file "/sys/class/net/$ifname/operstate")
+		rx_bytes=$(read_num "/sys/class/net/$ifname/statistics/rx_bytes")
+		tx_bytes=$(read_num "/sys/class/net/$ifname/statistics/tx_bytes")
+		rx_packets=$(read_num "/sys/class/net/$ifname/statistics/rx_packets")
+		tx_packets=$(read_num "/sys/class/net/$ifname/statistics/tx_packets")
+		rx_errors=$(read_num "/sys/class/net/$ifname/statistics/rx_errors")
+		tx_errors=$(read_num "/sys/class/net/$ifname/statistics/tx_errors")
+		rx_dropped=$(read_num "/sys/class/net/$ifname/statistics/rx_dropped")
+		tx_dropped=$(read_num "/sys/class/net/$ifname/statistics/tx_dropped")
+
+		json_add_object
+		json_add_string gdm "GDM$index"
+		json_add_string gmac "GMAC$index"
+		json_add_string ppe "PPE$index"
+		json_add_string interface "$ifname"
+		json_add_string path "$path"
+		json_add_string state "${operstate:-unknown}"
+		json_add_boolean up "$([ "$carrier" = "1" ] && echo 1 || echo 0)"
+		json_add_int speed_mbps "$speed"
+		json_add_int rx_bytes "$rx_bytes"
+		json_add_int tx_bytes "$tx_bytes"
+		json_add_int rx_packets "$rx_packets"
+		json_add_int tx_packets "$tx_packets"
+		json_add_int rx_errors "$rx_errors"
+		json_add_int tx_errors "$tx_errors"
+		json_add_int rx_dropped "$rx_dropped"
+		json_add_int tx_dropped "$tx_dropped"
+		json_close_object
+	done <<-EOF
+	2|sfp-wan|SFP+ WAN|0
+	1|sfp-lan|SFP+ LAN|0
+	0|eth0|ESW / RJ45|10000
+	EOF
+	json_close_array
+	json_dump
+}
+
 get_ppe_entries() {
 	local engine index state type orig new eth vlan packets bytes count=0
 
@@ -312,12 +361,13 @@ set_cpu_settings() {
 
 case "$1" in
 	list)
-		echo '{"getStatus":{},"getPorts":{},"getPpeEntries":{},"setCpuSettings":{"governor":"String","max_freq":"Integer"}}'
+		echo '{"getStatus":{},"getPorts":{},"getGdm":{},"getPpeEntries":{},"setCpuSettings":{"governor":"String","max_freq":"Integer"}}'
 		;;
 	call)
 		case "$2" in
 			getStatus) get_status ;;
 			getPorts) get_ports ;;
+			getGdm) get_gdm ;;
 			getPpeEntries) get_ppe_entries ;;
 			setCpuSettings) set_cpu_settings "$3" ;;
 		esac
