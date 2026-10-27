@@ -94,3 +94,15 @@ rules:
 ##- DOMAIN-SUFFIX,members.3322.org,DIRECT
 
 ##在线IP段转CIDR地址：http://ip2cidr.com
+
+##直连
+- DOMAIN-SUFFIX,apple.com,DIRECT
+- DOMAIN-SUFFIX,itunes.apple.com,DIRECT
+- DOMAIN-SUFFIX,apps.apple.com,DIRECT
+- DOMAIN-SUFFIX,mzstatic.com,DIRECT
+- DOMAIN-SUFFIX,ptchdbits.co,DIRECT
+- DOMAIN-SUFFIX,chdbits.xyz,DIRECT
+- DOMAIN-SUFFIX,rainbowisland.co,DIRECT
+- DOMAIN-SUFFIX,m-team.cc,DIRECT
+- DOMAIN-SUFFIX,hdsky.me,DIRECT
+- DOMAIN-SUFFIX,ourbits.club,DIRECT

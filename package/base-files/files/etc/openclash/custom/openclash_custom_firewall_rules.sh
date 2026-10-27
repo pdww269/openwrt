@@ -7,4 +7,8 @@
 
 LOG_TIP "Start Add Custom Firewall Rules..."
 
+# qbt inbound 50721 passthrough (bypass clash mangle)
+nft insert rule inet fw4 openclash_mangle tcp dport 50721 counter return 2>/dev/null
+nft insert rule inet fw4 openclash_mangle udp dport 50721 counter return 2>/dev/null
+
 exit 0

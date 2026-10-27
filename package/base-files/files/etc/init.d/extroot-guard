@@ -1,0 +1,46 @@
+#!/bin/sh /etc/rc.common
+# BPI-R4 extroot guard.
+# Runs before /etc/init.d/fstab (START=11). It makes sure the external
+# f2fs overlay is enabled even if sysupgrade restored an older fstab that
+# lacked "option enabled '1'".
+
+START=10
+STOP=90
+
+boot() {
+	local changed=0
+
+	if ! uci -q get fstab.overlay_ext >/dev/null 2>&1; then
+		uci set fstab.overlay_ext='mount'
+		changed=1
+	fi
+
+	if [ "$(uci -q get fstab.overlay_ext.target 2>/dev/null)" != "/overlay" ]; then
+		uci set fstab.overlay_ext.target='/overlay'
+		changed=1
+	fi
+
+	if [ -z "$(uci -q get fstab.overlay_ext.uuid 2>/dev/null)" ] &&
+	   [ -z "$(uci -q get fstab.overlay_ext.label 2>/dev/null)" ]; then
+		uci set fstab.overlay_ext.label='overlay'
+		changed=1
+	fi
+
+	if [ "$(uci -q get fstab.overlay_ext.fstype 2>/dev/null)" != "f2fs" ]; then
+		uci set fstab.overlay_ext.fstype='f2fs'
+		changed=1
+	fi
+
+	if [ "$(uci -q get fstab.overlay_ext.options 2>/dev/null)" != "noatime" ]; then
+		uci set fstab.overlay_ext.options='noatime'
+		changed=1
+	fi
+
+	if [ "$(uci -q get fstab.overlay_ext.enabled 2>/dev/null)" != "1" ]; then
+		uci set fstab.overlay_ext.enabled='1'
+		changed=1
+	fi
+
+	[ "$changed" = "1" ] && uci commit fstab
+	return 0
+}
