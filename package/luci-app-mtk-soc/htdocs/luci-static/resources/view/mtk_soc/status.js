@@ -5,6 +5,36 @@
 'require ui';
 'require view.mtk_soc.ui as aui';
 
+/*
+ * This LuCI DOM implementation stringifies null array entries instead of
+ * skipping them. Normalize conditional child nodes before they reach E().
+ */
+var domCreate = window.E;
+
+function compactNodes(nodes) {
+	var out = [];
+	(Array.isArray(nodes) ? nodes : [ nodes ]).forEach(function(node) {
+		if (Array.isArray(node)) {
+			compactNodes(node).forEach(function(child) {
+				out.push(child);
+			});
+		} else if (node != null) {
+			out.push(node);
+		}
+	});
+	return out;
+}
+
+function E(tag, attrs, children) {
+	if (!(attrs instanceof Object) || Array.isArray(attrs)) {
+		children = attrs;
+		attrs = null;
+	}
+	if (Array.isArray(children))
+		children = compactNodes(children);
+	return domCreate(tag, attrs, children);
+}
+
 var callStatus = rpc.declare({ object: 'luci.mtk_soc', method: 'getStatus', expect: {} });
 var callPorts = rpc.declare({ object: 'luci.mtk_soc', method: 'getPorts', expect: {} });
 var callPpeEntries = rpc.declare({ object: 'luci.mtk_soc', method: 'getPpeEntries', expect: {} });
