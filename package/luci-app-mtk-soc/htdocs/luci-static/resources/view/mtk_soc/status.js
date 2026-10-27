@@ -874,9 +874,9 @@ return view.extend({
 			E('h2', {}, _('MediaTek SoC 状态')),
 			E('div', { 'class': 'mtk-soc-page', id: 'mtk-soc-body', style: 'margin-top:.5rem' }, [
 				refs.ports,
-				refs.gdm,
 				cpuBlock,
 				refs.npu,
+				refs.gdm,
 				refs.engines,
 				refs.thermal,
 				refs.tables
