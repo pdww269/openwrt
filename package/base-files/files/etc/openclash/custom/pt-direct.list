@@ -1,0 +1,86 @@
+# PT / Tracker 直连清单（一行一个域名，大小写不敏感；# 开头为注释）
+#
+# 每行会被生成一条 `DOMAIN-SUFFIX,<域名>,DIRECT`，插到 rules 的**最前面**，
+# 保证 PT 网站和 Tracker 的访问与汇报不经过代理。
+# 另外还会在最前面加一条 `GEOSITE,category-public-tracker,DIRECT` 兜住公共 tracker。
+#
+# 需要补充就往下加，然后重新跑一次 install.sh（幂等）。
+# 注意：这里只写"域名"，不要写 URL、不要带 http://。
+
+# ---- 华人 PT ----
+ptchdbits.co
+chdbits.xyz
+chdbits.co
+m-team.cc
+m-team.io
+hdsky.me
+ourbits.club
+ourbits.org
+ttg.im
+hdchina.org
+hdwing.com
+hdcity.city
+pterclub.com
+u2.dmhy.org
+dmhy.org
+tjupt.org
+byr.pt
+pt.sjtu.edu.cn
+joyhd.net
+open.cd
+hdhome.org
+pthome.net
+springsunday.net
+hdstreet.org
+ptsbao.club
+hdfans.org
+ptchina.org
+lepter.space
+hdarea.co
+hdarea.club
+hdtime.org
+sharkpt.net
+nicept.net
+discfan.net
+hhhan.club
+hhanclub.top
+ptcafe.club
+ptzone.xyz
+hdvideo.top
+ptlgs.org
+allptt.com
+52pt.site
+et8.org
+hdatmos.club
+ptfans.org
+hdcm00.com
+selezen.net
+
+# ---- 国外 PT ----
+passthepopcorn.me
+broadcasthe.net
+redacted.ch
+gazellegames.net
+iptorrents.com
+iptorrents.eu
+torrentleech.org
+animebytes.tv
+myanonamouse.net
+bibliotik.me
+learnbits.me
+digitalcore.club
+speed.cd
+hd-space.org
+blutopia.cc
+beyond-hd.me
+hdbits.org
+superbits.org
+thegeeks.click
+32pag.es
+theplace.click
+thevault.click
+scenetime.com
+torrentday.com
+ncore.pro
+ncore.cc
+yggtorrent.li

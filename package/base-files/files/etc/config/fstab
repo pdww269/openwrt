@@ -1,0 +1,36 @@
+# BPI-R4 extroot defaults.
+# This file is baked into the squashfs so the first boot after sysupgrade
+# can mount the external overlay before any restored config takes effect.
+
+config global
+	option anon_swap '0'
+	option anon_mount '1'
+	option auto_swap '1'
+	option auto_mount '1'
+	option delay_root '5'
+	option check_fs '0'
+
+config mount 'overlay_ext'
+	option target '/overlay'
+	option label 'overlay'
+	option fstype 'f2fs'
+	option options 'noatime'
+	option enabled '1'
+
+config swap 'nvme_swap'
+	option label 'swap'
+	option enabled '1'
+
+config mount 'nvme_docker'
+	option target '/opt/docker'
+	option label 'docker-data'
+	option fstype 'ext4'
+	option options 'noatime,discard'
+	option enabled '1'
+
+config mount 'nvme_data'
+	option target '/mnt/data'
+	option label 'nvme-data'
+	option fstype 'btrfs'
+	option options 'noatime,compress=zstd:3,discard=async'
+	option enabled '1'

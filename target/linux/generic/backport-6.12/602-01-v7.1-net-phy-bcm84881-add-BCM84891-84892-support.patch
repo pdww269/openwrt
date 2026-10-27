@@ -1,0 +1,120 @@
+From 75171eeff3538c6859b50f6a516342c8f1ed6e00 Mon Sep 17 00:00:00 2001
+From: Daniel Wagner <wagner.daniel.t@gmail.com>
+Date: Mon, 30 Mar 2026 23:53:10 +0100
+Subject: [PATCH] net: phy: bcm84881: add BCM84891/BCM84892 support
+
+Backport of mainline commit 75171eeff353 ("net: phy: bcm84881: add
+BCM84891/BCM84892 support") to Linux 6.12 for OpenWrt.
+
+The BCM84891 and BCM84892 are 10GBASE-T PHYs in the same family as the
+BCM84881, sharing the register map and most callbacks. They add USXGMII
+as a host interface mode.
+
+bcm8489x_config_init() is separate from bcm84881_config_init(): it
+allows only USXGMII (the only host mode available on the tested
+hardware) and clears MDIO_CTRL1_LPOWER, which is set at boot on the
+tested platform. Does not recur on ifdown/ifup, cable events, or
+link-partner advertisement changes, so config_init is sufficient.
+
+For USXGMII, read_status() skips the 0x4011 host-mode register: it
+returns the same value regardless of negotiated copper speed (USXGMII
+symbol replication). Speed comes from phy_resolve_aneg_linkmode() via
+standard C45 AN resolution.
+
+Tested on TRENDnet TEG-S750 (RTL9303 + 1x BCM84891 + 4x BCM84892)
+running OpenWrt. Link verified at 100M, 1G, 2.5G, 10G.
+
+The LED framework support from the follow-up mainline commit is
+intentionally omitted from this backport.
+
+Signed-off-by: Daniel Wagner <wagner.daniel.t@gmail.com>
+Reviewed-by: Florian Fainelli <florian.fainelli@broadcom.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+---
+ drivers/net/phy/bcm84881.c | 47 +++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 47 insertions(+), 1 deletion(-)
+
+--- a/drivers/net/phy/bcm84881.c
++++ b/drivers/net/phy/bcm84881.c
+@@ -54,6 +54,21 @@
+ 	return 0;
+ }
+ 
++static int bcm8489x_config_init(struct phy_device *phydev)
++{
++	__set_bit(PHY_INTERFACE_MODE_USXGMII, phydev->possible_interfaces);
++
++	if (phydev->interface != PHY_INTERFACE_MODE_USXGMII)
++		return -ENODEV;
++
++	/* MDIO_CTRL1_LPOWER is set at boot on the tested platform. Does not
++	 * recur on ifdown/ifup, cable events, or link-partner advertisement
++	 * changes; clear it once.
++	 */
++	return phy_clear_bits_mmd(phydev, MDIO_MMD_PMAPMD, MDIO_CTRL1,
++				  MDIO_CTRL1_LPOWER);
++}
++
+ static int bcm84881_probe(struct phy_device *phydev)
+ {
+ 	/* This driver requires PMAPMD and AN blocks */
+@@ -200,6 +215,15 @@
+ 		phydev->link = 0;
+ 		return 0;
+ 	}
++
++	/* BCM84891/92 on USXGMII: the host interface mode doesn't change
++	 * with copper speed (USXGMII symbol replication; the MAC receives
++	 * the negotiated copper speed, not 10G, so no rate adaptation).
++	 * Skip 0x4011; phy_resolve_aneg_linkmode() above already set the
++	 * speed. Only bcm8489x_config_init() allows USXGMII.
++	 */
++	if (phydev->interface == PHY_INTERFACE_MODE_USXGMII)
++		return genphy_c45_read_mdix(phydev);
+ 
+ 	/* Set the host link mode - we set the phy interface mode and
+ 	 * the speed according to this register so that downshift works.
+@@ -256,6 +280,26 @@
+ 		.config_aneg	= bcm84881_config_aneg,
+ 		.aneg_done	= bcm84881_aneg_done,
+ 		.read_status	= bcm84881_read_status,
++	}, {
++		PHY_ID_MATCH_MODEL(0x35905080),
++		.name		= "Broadcom BCM84891",
++		.inband_caps	= bcm84881_inband_caps,
++		.config_init	= bcm8489x_config_init,
++		.probe		= bcm84881_probe,
++		.get_features	= bcm84881_get_features,
++		.config_aneg	= bcm84881_config_aneg,
++		.aneg_done	= bcm84881_aneg_done,
++		.read_status	= bcm84881_read_status,
++	}, {
++		PHY_ID_MATCH_MODEL(0x359050a0),
++		.name		= "Broadcom BCM84892",
++		.inband_caps	= bcm84881_inband_caps,
++		.config_init	= bcm8489x_config_init,
++		.probe		= bcm84881_probe,
++		.get_features	= bcm84881_get_features,
++		.config_aneg	= bcm84881_config_aneg,
++		.aneg_done	= bcm84881_aneg_done,
++		.read_status	= bcm84881_read_status,
+ 	},
+ };
+ 
+@@ -264,9 +308,11 @@
+ /* FIXME: module auto-loading for Clause 45 PHYs seems non-functional */
+ static const struct mdio_device_id __maybe_unused bcm84881_tbl[] = {
+ 	{ 0xae025150, 0xfffffff0 },
++	{ PHY_ID_MATCH_MODEL(0x35905080) },
++	{ PHY_ID_MATCH_MODEL(0x359050a0) },
+ 	{ },
+ };
+ MODULE_AUTHOR("Russell King");
+-MODULE_DESCRIPTION("Broadcom BCM84881 PHY driver");
++MODULE_DESCRIPTION("Broadcom BCM84881/BCM84891/BCM84892 PHY driver");
+ MODULE_DEVICE_TABLE(mdio, bcm84881_tbl);
+ MODULE_LICENSE("GPL");
+-- 
+2.43.0
+

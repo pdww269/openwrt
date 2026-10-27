@@ -1,13 +1,34 @@
 # 嗅探域名 可选配置
+# ⛔⛔ 本文件当前【不生效】—— 设备上 uci enable_meta_sniffer_custom='0'。
+#     生成物里的 sniffer 段由 OpenClash 硬编码生成（/usr/share/openclash/yml_change.sh），
+#     当前硬编码版本已完整覆盖 TUN 所需（QUIC+TLS+HTTP 全嗅探）；
+#     parse-pure-ip 由 uci enable_meta_sniffer_pure_ip 单独控制（88.1 现为 1）。
+#     ⇒ 不要关 sniffer：PT 站/苹果那批 DIRECT 规则会失效。
+#
+# ⭐ 88.1（MT7987 / iStoreOS 24.10.3）自 2026-09-17 起长期用 en_mode='fake-ip-tun'，所以：
+#     - parse-pure-ip 必须 true（TUN 靠它给「裸 IP」流量反查域名）
+#     - QUIC 嗅探建议保留（TUN 全接管，UDP 443 流量存在）
+#     ⛔ 早期那份「parse-pure-ip=false + 删 QUIC」的精简版是给 fake-ip 优化的，
+#        TUN 下会破坏 qBittorrent/tracker 这类自带 DNS 的裸 IP 分流。已废弃。
+#
+# ⛔⛔ 2026-09-26 特别提醒（从 MF 迁移钩子时踩到的判定点）：
+#     MF（XG040GMF / AN7583）那份 openclash_custom_sniffer.yaml 正是上面的「精简版」
+#     （parse-pure-ip: false + 删掉 QUIC 段），因为 MF 跑的是 en_mode='fake-ip'。
+#     ⇒ **它不能照搬到 88.1**：本机是 TUN，需要 parse-pure-ip: true + 保留 QUIC。
+#     本次迁移已把它排除在搬运清单外，本文件保持 TUN 版本。
+#
+# 如要启用本文件，需先 uci set openclash.config.enable_meta_sniffer_custom='1'，
+# 并确保下面的值与 TUN 需求一致（当前内容已符合）。
 sniffer:
+
   ## 对 redir-host 类型识别的流量进行强制嗅探
   ## 如：Tun、Redir 和 TProxy 并 DNS 为 redir-host 皆属于
   force-dns-mapping: true
   ## 对所有未获取到域名的流量进行强制嗅探
   parse-pure-ip: true
-  # 是否使用嗅探结果作为实际访问，默认 false
+  # 是否使用嗅探结果作为实际访问，默认 true
   # 全局配置，优先级低于 sniffer.sniff 实际配置
-  override-destination: false
+  override-destination: true
   sniff: # TLS 和 QUIC 默认如果不配置 ports 默认嗅探 443
     QUIC:
       ports: [ 443 ]
@@ -19,7 +40,7 @@ sniffer:
     HTTP:
       ports: [80, 8080-8880]
       # 是否使用嗅探结果作为实际访问
-      override-destination: false
+      override-destination: true
   force-domain:
 #  - '+' # Force all domain to use sniffer
   - "+.netflix.com"
