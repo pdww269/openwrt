@@ -37,6 +37,7 @@ function E(tag, attrs, children) {
 
 var callStatus = rpc.declare({ object: 'luci.mtk_soc', method: 'getStatus', expect: {} });
 var callPorts = rpc.declare({ object: 'luci.mtk_soc', method: 'getPorts', expect: {} });
+var callGdm = rpc.declare({ object: 'luci.mtk_soc', method: 'getGdm', expect: {} });
 var callPpeEntries = rpc.declare({ object: 'luci.mtk_soc', method: 'getPpeEntries', expect: {} });
 var callSetCpu = rpc.declare({
 	object: 'luci.mtk_soc',
@@ -189,6 +190,11 @@ var ppePage = 0;
 var PPE_PAGE_SIZE = 50;
 var PPE_STATES = [ 'BND', 'UNB', 'FIN' ];
 var PPE_ENGINES = [ 'ppe0', 'ppe1', 'ppe2' ];
+var PPE_ROLES = {
+	ppe0: 'ESW / RJ45',
+	ppe1: 'SFP+ LAN',
+	ppe2: 'SFP+ WAN'
+};
 
 function mergeFixed(fixed, dynamic) {
 	var out = fixed.slice();
@@ -424,6 +430,67 @@ function renderPorts(ports) {
 	));
 }
 
+function renderGdm(data) {
+	var entries = data.gdm || [];
+	function hasTraffic(entry) {
+		return Number(entry.rx_bytes) + Number(entry.tx_bytes) >= 1048576;
+	}
+	function linkSpeed(entry) {
+		var speed = Number(entry.speed_mbps);
+		if (!entry.up || speed <= 0)
+			return 'N/A';
+		if (speed >= 1000)
+			return (speed / 1000).toFixed(speed % 1000 ? 1 : 0) + ' Gbps';
+		return speed + ' Mbps';
+	}
+	var active = entries.filter(function(entry) {
+		return entry.up && hasTraffic(entry);
+	}).length;
+
+	var rows = entries.map(function(entry) {
+		var errors = Math.max(0, Number(entry.rx_errors)) + Math.max(0, Number(entry.tx_errors));
+		var drops = Math.max(0, Number(entry.rx_dropped)) + Math.max(0, Number(entry.tx_dropped));
+		var traffic = hasTraffic(entry);
+		var state = entry.up ? (traffic ? _('转发中') : _('待机')) : _('未连接');
+		var stateClass = entry.up ? (traffic ? 'label success' : 'label') : 'label warning';
+
+		return E('tr', { 'class': 'tr' }, [
+			E('td', { 'class': 'td' }, [
+				E('strong', {}, entry.gdm || '-'),
+				E('div', { 'class': 'mtk-gdm-interface' }, entry.path || entry.interface || '-')
+			]),
+			E('td', { 'class': 'td' }, E('div', { 'class': 'mtk-gdm-path' }, [
+				E('span', { 'class': 'mtk-gdm-node' }, entry.gmac || '-'),
+				E('span', { 'class': 'mtk-gdm-arrow' }, '\u203a'),
+				E('span', { 'class': 'mtk-gdm-node mtk-gdm-node--dma' }, entry.gdm || '-'),
+				E('span', { 'class': 'mtk-gdm-arrow' }, '\u203a'),
+				E('span', { 'class': 'mtk-gdm-node mtk-gdm-node--ppe' }, entry.ppe || '-')
+			])),
+			E('td', { 'class': 'td mono' }, linkSpeed(entry)),
+			E('td', { 'class': 'td' }, E('span', { 'class': 'label' }, entry.ppe || '-')),
+			E('td', { 'class': 'td mono' }, fmtBytes(entry.rx_bytes) + ' / ' + fmtBytes(entry.tx_bytes)),
+			E('td', { 'class': 'td mono' }, fmtNumber(errors) + ' / ' + fmtNumber(drops)),
+			E('td', { 'class': 'td' }, E('span', { 'class': stateClass }, state))
+		]);
+	});
+
+	return card(_('GDM 数据通路'), E('div', { style: 'overflow-x:auto' },
+		E('table', { 'class': 'table mtk-gdm-table' }, [
+			E('thead', {}, E('tr', { 'class': 'tr table-titles' }, [
+				E('th', { 'class': 'th' }, _('GDM / 接口')),
+				E('th', { 'class': 'th' }, _('数据路径')),
+				E('th', { 'class': 'th' }, _('链路')),
+				E('th', { 'class': 'th' }, 'PPE'),
+				E('th', { 'class': 'th' }, _('接收 / 发送')),
+				E('th', { 'class': 'th' }, _('错误 / 丢包')),
+				E('th', { 'class': 'th' }, _('状态'))
+			])),
+			E('tbody', {}, rows.length ? rows :
+				E('tr', { 'class': 'tr' }, E('td', { 'class': 'td', colspan: 7 }, _('暂无 GDM 数据'))))
+		])
+	), null, active + ' / ' + entries.length + ' ' + _('转发中'), 'mtk-gdm-count');
+}
+
 function tempLevel(current, warn, crit) {
 	if (current == null || current < 0)
 		return { text: _('未知'), cls: 'label' };
@@ -505,6 +572,7 @@ function renderPpeEngines(s) {
 		var p = ppe[name] || {};
 		cards.push(aui.card({
 			name: name.toUpperCase(),
+			tag: PPE_ROLES[name],
 			accent: 'var(--ai-npu)',
 			body: E('table', { 'class': 'table mtk-kv' }, E('tbody', {}, [
 				row(_('总'), fmtNumber(p.total)),
@@ -703,11 +771,12 @@ function renderFreqChart(s) {
 	});
 }
 
-function applyStatus(refs, status, ports, entries) {
+function applyStatus(refs, status, ports, entries, gdm) {
 	pushLoad(status.cpu_ticks);
 	pushFreq(status.cpu_cur_freq);
 
 	refs.ports.replaceChildren(renderPorts(ports));
+	refs.gdm.replaceChildren(renderGdm(gdm));
 	refs.cpuInfo.replaceChildren(renderCpuInfoTable(status));
 	refs.cpuUsage.replaceChildren(renderUsageChart());
 	refs.cpuFreq.replaceChildren(renderFreqChart(status));
@@ -719,13 +788,14 @@ function applyStatus(refs, status, ports, entries) {
 
 return view.extend({
 	load: function() {
-		return Promise.all([ callStatus(), callPorts(), callPpeEntries() ]);
+		return Promise.all([ callStatus(), callPorts(), callPpeEntries(), callGdm() ]);
 	},
 
 	render: function(data) {
 		var status = data[0] || {};
 		var ports = data[1] || {};
 		var entries = data[2] || {};
+		var gdm = data[3] || {};
 		aui.ensureCss();
 		var pageCss = [
 			'.mtk-soc-page .table td,.mtk-soc-page .table th{padding:.32rem .45rem}',
@@ -762,9 +832,25 @@ return view.extend({
 			'background:rgba(15,18,24,.94);border:1px solid rgba(127,127,127,.35);border-radius:6px;padding:.25rem .5rem;',
 			'font-size:.78em;line-height:1.5;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,.35)}',
 			'.mtk-chart-tip b{font-weight:600}'
+			,'.mtk-gdm-table{table-layout:fixed}'
+			,'.mtk-gdm-table th:nth-child(1){width:13%}'
+			,'.mtk-gdm-table th:nth-child(2){width:29%}'
+			,'.mtk-gdm-table th:nth-child(3){width:10%}'
+			,'.mtk-gdm-table th:nth-child(4){width:9%}'
+			,'.mtk-gdm-table th:nth-child(5){width:17%}'
+			,'.mtk-gdm-table th:nth-child(6){width:12%}'
+			,'.mtk-gdm-table th:nth-child(7){width:10%}'
+			,'.mtk-gdm-interface{margin-top:.12rem;color:var(--text-color-medium,#8a8f98);font-size:.78rem}'
+			,'.mtk-gdm-path{display:flex;align-items:center;gap:.35rem;white-space:nowrap}'
+			,'.mtk-gdm-node{display:inline-flex;align-items:center;justify-content:center;min-width:3.8rem;height:1.55rem;padding:0 .4rem;',
+			'border:1px solid rgba(127,127,127,.38);border-radius:5px;background:rgba(127,127,127,.05);font-size:.75rem;font-weight:650}'
+			,'.mtk-gdm-node--dma{color:#4dabf7;border-color:rgba(77,171,247,.45);background:rgba(77,171,247,.08)}'
+			,'.mtk-gdm-node--ppe{color:#ab9cff;border-color:rgba(139,124,246,.48);background:rgba(139,124,246,.09)}'
+			,'.mtk-gdm-arrow{color:var(--text-color-medium,#7e858e)}'
 		].join('');
 		var refs = {
 			ports: E('div', { id: 'mtk-soc-ports' }),
+			gdm: E('div', { id: 'mtk-soc-gdm' }),
 			cpuInfo: E('div', { 'class': 'mtk-soc-cpu-body' }),
 			cpuControl: E('div', { 'class': 'mtk-soc-cpu-body' }),
 			cpuUsage: E('div', { 'class': 'mtk-soc-cpu-body' }),
@@ -788,6 +874,7 @@ return view.extend({
 			E('h2', {}, _('MediaTek SoC 状态')),
 			E('div', { 'class': 'mtk-soc-page', id: 'mtk-soc-body', style: 'margin-top:.5rem' }, [
 				refs.ports,
+				refs.gdm,
 				cpuBlock,
 				refs.npu,
 				refs.engines,
@@ -799,17 +886,17 @@ return view.extend({
 		refs.cpuControl.appendChild(renderCpuControlsBody(status, function(governor, maxFreq) {
 			return callSetCpu(governor, maxFreq).then(function() {
 				ui.addNotification(null, E('p', {}, _('CPU 设置已应用')), 'info');
-				return callStatus().then(function(s) {
-					applyStatus(refs, s || {}, ports, entries);
+				return Promise.all([ callStatus(), callPorts(), callPpeEntries(), callGdm() ]).then(function(next) {
+					applyStatus(refs, next[0] || {}, next[1] || {}, next[2] || {}, next[3] || {});
 				});
 			});
 		}));
 
-		applyStatus(refs, status, ports, entries);
+		applyStatus(refs, status, ports, entries, gdm);
 
 		poll.add(L.bind(function() {
-			return Promise.all([ callStatus(), callPorts(), callPpeEntries() ]).then(function(next) {
-				applyStatus(refs, next[0] || {}, next[1] || {}, next[2] || {});
+			return Promise.all([ callStatus(), callPorts(), callPpeEntries(), callGdm() ]).then(function(next) {
+				applyStatus(refs, next[0] || {}, next[1] || {}, next[2] || {}, next[3] || {});
 			});
 		}, this), 5);
 
