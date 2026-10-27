@@ -1,0 +1,13 @@
+{
+	"admin/status/mtk-soc": {
+		"title": "MediaTek SoC",
+		"order": 16,
+		"action": {
+			"type": "view",
+			"path": "mtk_soc/status"
+		},
+		"depends": {
+			"acl": [ "luci-app-mtk-soc" ]
+		}
+	}
+}
