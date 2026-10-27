@@ -1,0 +1,3 @@
+config mtk_soc 'cpu'
+	option governor 'userspace'
+	option max_freq '1800000'

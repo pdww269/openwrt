@@ -1,0 +1,19 @@
+{
+	"luci-app-mtk-soc": {
+		"description": "MediaTek SoC, PPE and port status",
+		"read": {
+			"ubus": {
+				"luci.mtk_soc": [ "getStatus", "getPorts", "getPpeEntries" ]
+			}
+		},
+		"write": {
+			"ubus": {
+				"luci.mtk_soc": [ "setCpuSettings" ],
+				"uci": [ "set", "commit" ]
+			},
+			"uci": {
+				"mtk_soc": [ "write" ]
+			}
+		}
+	}
+}

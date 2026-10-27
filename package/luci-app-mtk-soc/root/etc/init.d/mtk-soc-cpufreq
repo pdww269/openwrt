@@ -1,0 +1,31 @@
+#!/bin/sh /etc/rc.common
+
+START=95
+STOP=10
+
+apply_cpu_settings() {
+	local governor max_freq
+
+	[ -d /sys/devices/system/cpu/cpufreq/policy0 ] || return 0
+	config_load mtk_soc
+	config_get governor cpu governor
+	config_get max_freq cpu max_freq
+
+	if [ -n "$governor" ] &&
+	   grep -qw "$governor" /sys/devices/system/cpu/cpufreq/policy0/scaling_available_governors 2>/dev/null; then
+		echo "$governor" > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor 2>/dev/null || true
+	fi
+
+	if [ -n "$max_freq" ] &&
+	   grep -qw "$max_freq" /sys/devices/system/cpu/cpufreq/policy0/scaling_available_frequencies 2>/dev/null; then
+		echo "$max_freq" > /sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq 2>/dev/null || true
+	fi
+}
+
+boot() {
+	apply_cpu_settings
+}
+
+start() {
+	apply_cpu_settings
+}
