@@ -1,0 +1,55 @@
+#!/bin/sh
+
+get_interfaces() {
+	exec ubus call network.interface dump
+}
+
+get_status() {
+	local payload="$1" name
+
+	if [ -z "$payload" ]; then
+		IFS= read -r payload
+	fi
+
+	name=$(printf '%s' "$payload" | jsonfilter -e '@.name' 2>/dev/null)
+	case "$name" in
+		''|*[!A-Za-z0-9_]*)
+			exit 1
+			;;
+	esac
+
+	exec ubus call "network.interface.$name" status
+}
+
+get_logs() {
+	local logs lines
+
+	logs=$(logread 2>/dev/null |
+		grep -Ei "pppd\[|pppoe|PADI|PADO|PADS|PADT|PADR|CHAP|PAP|LCP|IPCP|wan1453|pppoe-wan|Interface 'wan'|br-wan|sfp-wan|Connected to.*via interface" |
+		tail -n 800)
+
+	if [ -n "$logs" ]; then
+		lines=$(printf '%s\n' "$logs" | wc -l)
+	else
+		lines=0
+	fi
+
+	. /usr/share/libubox/jshn.sh
+	json_init
+	json_add_string text "$logs"
+	json_add_int lines "$lines"
+	json_dump
+}
+
+case "$1" in
+	list)
+		echo '{"getInterfaces":{},"getStatus":{"name":"String"},"getLogs":{}}'
+		;;
+	call)
+		case "$2" in
+			getInterfaces) get_interfaces ;;
+			getStatus) get_status "$3" ;;
+			getLogs) get_logs ;;
+		esac
+		;;
+esac

@@ -1,0 +1,11 @@
+{
+	"luci-app-pppoe-diagnostics": {
+		"description": "Read PPPoE interface state and diagnostics logs",
+		"read": {
+			"ubus": {
+				"luci.pppoe_diagnostics": [ "getInterfaces", "getStatus", "getLogs" ]
+			},
+			"uci": [ "network" ]
+		}
+	}
+}

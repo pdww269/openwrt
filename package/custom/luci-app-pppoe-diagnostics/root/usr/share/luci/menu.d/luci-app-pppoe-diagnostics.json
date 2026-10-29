@@ -1,0 +1,13 @@
+{
+	"admin/network/pppoe-diagnostics": {
+		"title": "PPPoE 诊断",
+		"order": 55,
+		"action": {
+			"type": "view",
+			"path": "network/pppoe-diagnostics-r8"
+		},
+		"depends": {
+			"acl": [ "luci-app-pppoe-diagnostics" ]
+		}
+	}
+}
