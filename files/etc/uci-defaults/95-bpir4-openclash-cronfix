@@ -1,0 +1,18 @@
+#!/bin/sh
+# OpenClash 自己的定时重启会在 cron cgroup 拆除时被杀(stop 完 start 死掉)。
+# 刷机后 /usr/share/openclash/openclash_ps.sh 是原版,这里重新打补丁。
+PS=/usr/share/openclash/openclash_ps.sh
+[ -f "$PS" ] || exit 0
+grep -q 'oc-cgroup-escape' "$PS" && exit 0
+NEW='      setsid sh -c '"'"'[ -w /sys/fs/cgroup/cgroup.procs ] && echo $$ > /sys/fs/cgroup/cgroup.procs 2>/dev/null; exec /etc/init.d/openclash restart'"'"' >/dev/null 2>&1 &   # oc-cgroup-escape'
+awk -v new="$NEW" '
+  { line = $0; gsub(/^[ \t]+|[ \t]+$/, "", line) }
+  line == "/etc/init.d/openclash restart >/dev/null 2>&1 &" { print new; hit=1; next }
+  { print }
+' "$PS" > "$PS.new" 2>/dev/null
+if [ -s "$PS.new" ] && (sh -n "$PS.new" 2>/dev/null || bash -n "$PS.new" 2>/dev/null); then
+	mv "$PS.new" "$PS"; chmod 755 "$PS"
+else
+	rm -f "$PS.new"
+fi
+exit 0

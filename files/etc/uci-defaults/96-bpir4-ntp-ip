@@ -1,0 +1,10 @@
+#!/bin/sh
+# Bootstrap NTP without DNS: our DNS path uses DoH, which needs a valid clock.
+# If the RTC ever comes up wrong, hostname-based NTP would deadlock.
+uci -q delete system.ntp.server
+uci add_list system.ntp.server='203.107.6.88'    # ntp.aliyun.com
+uci add_list system.ntp.server='120.25.115.20'   # ntp.aliyun.com alt
+uci add_list system.ntp.server='0.openwrt.pool.ntp.org'
+uci set system.ntp.enabled='1'
+uci commit system
+exit 0

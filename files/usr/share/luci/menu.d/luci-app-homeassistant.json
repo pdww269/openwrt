@@ -1,0 +1,10 @@
+{
+	"admin/homeassistant": {
+		"title": "Home Assistant",
+		"order": 50,
+		"action": {
+			"type": "view",
+			"path": "homeassistant/overview"
+		}
+	}
+}

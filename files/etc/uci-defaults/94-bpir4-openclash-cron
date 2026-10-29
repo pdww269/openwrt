@@ -1,0 +1,9 @@
+#!/bin/sh
+# 保证 OC 加固的守护任务在(全新刷机时 crontab 是空的)
+C=/etc/crontabs/root
+mkdir -p /etc/crontabs
+touch "$C"
+grep -q 'oc-guard' "$C" || echo '*/3 * * * * /etc/openclash/custom/oc-guard.sh #oc-guard' >> "$C"
+grep -q 'oc-log-archive' "$C" || echo '*/10 * * * * /etc/openclash/custom/oc-log-archive.sh #oc-log-archive' >> "$C"
+/etc/init.d/cron restart >/dev/null 2>&1
+exit 0
