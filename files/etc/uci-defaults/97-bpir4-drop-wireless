@@ -1,0 +1,4 @@
+#!/bin/sh
+# Wired-only build: no WiFi hardware support, drop any stale wireless config.
+rm -f /etc/config/wireless
+exit 0
