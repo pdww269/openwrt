@@ -1,0 +1,13 @@
+{
+	"admin/network/wan-access": {
+		"title": "外网访问控制",
+		"order": 60,
+		"action": {
+			"type": "view",
+			"path": "network/wan-access-r2"
+		},
+		"depends": {
+			"acl": [ "luci-app-wan-access" ]
+		}
+	}
+}

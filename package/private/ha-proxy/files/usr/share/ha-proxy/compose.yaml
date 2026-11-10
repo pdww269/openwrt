@@ -1,0 +1,23 @@
+name: ha-proxy
+
+services:
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: homeassistant
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Shanghai
+    volumes:
+      - /mnt/data/ha-config:/config
+
+  nginx-ha:
+    image: nginx:alpine
+    container_name: nginx-ha
+    network_mode: host
+    restart: unless-stopped
+    depends_on:
+      - homeassistant
+    volumes:
+      - /opt/docker/nginx-ha/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /opt/docker/nginx-ha/certs:/etc/certs:ro

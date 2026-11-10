@@ -1,0 +1,140 @@
+#!/bin/sh
+
+. /lib/functions.sh
+. /usr/share/libubox/jshn.sh
+
+json_error() {
+	json_init
+	json_add_boolean success 0
+	json_add_string error "$1"
+	json_dump
+}
+
+firewall_enabled() {
+	local firewall_section="$1"
+	local enabled
+
+	enabled="$(uci -q get "firewall.$firewall_section.enabled")"
+	[ "$enabled" = "0" ] && printf '0\n' || printf '1\n'
+}
+
+add_service() {
+	local section="$1"
+	local enabled title description firewall_section protocol
+	local wan_port destination_port target_kind target_host
+	local available=0 dest_ip='' target_label=''
+
+	config_get enabled "$section" enabled 0
+	config_get title "$section" title "$section"
+	config_get description "$section" description
+	config_get firewall_section "$section" firewall_section
+	config_get protocol "$section" protocol tcp
+	config_get wan_port "$section" wan_port
+	config_get destination_port "$section" destination_port
+	config_get target_kind "$section" target_kind router
+	config_get target_host "$section" target_host
+
+	[ -n "$firewall_section" ] || return 0
+
+	if uci -q get "firewall.$firewall_section" >/dev/null 2>&1; then
+		available=1
+		enabled="$(firewall_enabled "$firewall_section")"
+		dest_ip="$(uci -q get "firewall.$firewall_section.dest_ip")"
+		dest_ip="${dest_ip%%/*}"
+	fi
+
+	case "$target_kind" in
+		router)
+			target_label='路由器本机'
+			;;
+		host)
+			target_label="${target_host:-指定主机}"
+			;;
+		*)
+			target_label="${target_kind:-未知目标}"
+			;;
+	esac
+
+	json_add_object
+	json_add_string section "$section"
+	json_add_string title "$title"
+	json_add_string description "$description"
+	json_add_string firewall_section "$firewall_section"
+	json_add_string protocol "$protocol"
+	json_add_string wan_port "$wan_port"
+	json_add_string destination_port "$destination_port"
+	json_add_string target_label "$target_label"
+	json_add_string dest_ip "$dest_ip"
+	json_add_boolean enabled "$enabled"
+	json_add_boolean available "$available"
+	json_close_object
+}
+
+status() {
+	json_init
+	json_add_array services
+	config_load wan-access
+	config_foreach add_service service
+	json_close_array
+	json_dump
+}
+
+set_enabled() {
+	local payload="$1"
+	local section enabled firewall_section firewall_type
+
+	[ -n "$payload" ] || IFS= read -r payload
+	section="$(printf '%s' "$payload" | jsonfilter -e '@.section' 2>/dev/null)"
+	enabled="$(printf '%s' "$payload" | jsonfilter -e '@.enabled' 2>/dev/null)"
+
+	case "$section" in
+		''|*[!A-Za-z0-9_]*) json_error 'invalid section'; return ;;
+	esac
+	case "$enabled" in
+		0|1) ;;
+		*) json_error 'invalid enabled value'; return ;;
+	esac
+
+	config_load wan-access
+	firewall_type="$(uci -q get "wan-access.$section")"
+	[ "$firewall_type" = "service" ] || {
+		json_error 'service not found'
+		return
+	}
+	config_get firewall_section "$section" firewall_section
+	[ -n "$firewall_section" ] || {
+		json_error 'firewall section not configured'
+		return
+	}
+	uci -q get "firewall.$firewall_section" >/dev/null 2>&1 || {
+		json_error 'firewall section not found'
+		return
+	}
+
+	uci set "wan-access.$section.enabled=$enabled"
+	uci set "firewall.$firewall_section.enabled=$enabled"
+	uci commit wan-access
+	uci commit firewall
+
+	if ! /etc/init.d/firewall reload >/dev/null 2>&1; then
+		json_error 'firewall reload failed'
+		return
+	fi
+
+	json_init
+	json_add_boolean success 1
+	json_add_boolean enabled "$enabled"
+	json_dump
+}
+
+case "$1" in
+	list)
+		echo '{"status":{},"setEnabled":{"section":"String","enabled":"String"}}'
+		;;
+	call)
+		case "$2" in
+			status) status ;;
+			setEnabled) set_enabled "$3" ;;
+		esac
+		;;
+esac

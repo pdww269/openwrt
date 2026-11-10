@@ -1,0 +1,17 @@
+{
+	"luci-app-wan-access": {
+		"description": "Control selected WAN-to-LAN firewall redirects",
+		"read": {
+			"ubus": {
+				"luci.wan_access": [ "status" ]
+			},
+			"uci": [ "wan-access", "firewall" ]
+		},
+		"write": {
+			"ubus": {
+				"luci.wan_access": [ "setEnabled" ]
+			},
+			"uci": [ "wan-access", "firewall" ]
+		}
+	}
+}

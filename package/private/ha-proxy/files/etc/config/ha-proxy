@@ -1,0 +1,4 @@
+config settings 'settings'
+	option enabled '1'
+	option wan_port '47189'
+	option https_port '8443'

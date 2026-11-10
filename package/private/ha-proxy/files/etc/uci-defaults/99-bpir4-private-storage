@@ -1,0 +1,52 @@
+#!/bin/sh
+
+[ "$(board_name 2>/dev/null)" = "bananapi,bpi-r4" ] || exit 0
+
+set_mount() {
+	local label="$1"
+	local target="$2"
+	local fstype="$3"
+	local options="$4"
+	local section="$5"
+	local device uuid
+
+	device="$(blkid -t "LABEL=$label" -o device 2>/dev/null | head -n 1)"
+	[ -n "$device" ] || return 0
+	uuid="$(blkid -s UUID -o value "$device" 2>/dev/null)"
+	[ -n "$uuid" ] || return 0
+
+	uci -q delete "fstab.$section"
+	uci set "fstab.$section=mount"
+	uci set "fstab.$section.target=$target"
+	uci set "fstab.$section.uuid=$uuid"
+	uci set "fstab.$section.fstype=$fstype"
+	uci set "fstab.$section.options=$options"
+	uci set "fstab.$section.enabled=1"
+}
+
+set_mount docker-data /opt/docker ext4 noatime,discard nvme_docker
+set_mount nvme-data /mnt/data btrfs noatime,compress=zstd:3,discard=async nvme_data
+
+swap_device="$(blkid -t LABEL=swap -o device 2>/dev/null | head -n 1)"
+if [ -n "$swap_device" ]; then
+	swap_uuid="$(blkid -s UUID -o value "$swap_device" 2>/dev/null)"
+	if [ -n "$swap_uuid" ]; then
+		uci -q delete fstab.nvme_swap
+		uci set fstab.nvme_swap=swap
+		uci set fstab.nvme_swap.uuid="$swap_uuid"
+		uci set fstab.nvme_swap.enabled=1
+	fi
+fi
+
+uci commit fstab
+
+touch /etc/config/dockerd
+uci -q get dockerd.globals >/dev/null 2>&1 || uci set dockerd.globals=globals
+uci set dockerd.globals.data_root=/opt/docker
+uci commit dockerd
+
+mkdir -p /opt/docker /mnt/data
+mountpoint -q /opt/docker || mount /opt/docker >/dev/null 2>&1 || true
+mountpoint -q /mnt/data || mount /mnt/data >/dev/null 2>&1 || true
+
+exit 0

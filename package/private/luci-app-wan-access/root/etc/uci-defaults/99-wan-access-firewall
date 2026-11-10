@@ -1,0 +1,78 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+resolve_dhcp_host() {
+	local host="$1"
+	local section ip
+
+	case "$host" in
+		''|*[!A-Za-z0-9_.-]*) return 1 ;;
+	esac
+
+	for section in $(uci show dhcp 2>/dev/null |
+		sed -n "s/^dhcp\.\([^.=]*\)\.name='${host}'$/\1/p"); do
+		ip="$(uci -q get "dhcp.$section.ip")"
+		[ -n "$ip" ] && {
+			printf '%s\n' "$ip"
+			return 0
+		}
+	done
+
+	return 1
+}
+
+ensure_rule() {
+	local section="$1"
+	local enabled firewall_section protocol wan_port destination_port
+	local target_kind target_host dest_ip
+
+	config_get enabled "$section" enabled 0
+	config_get firewall_section "$section" firewall_section
+	config_get protocol "$section" protocol tcp
+	config_get wan_port "$section" wan_port
+	config_get destination_port "$section" destination_port
+	config_get target_kind "$section" target_kind router
+	config_get target_host "$section" target_host
+
+	[ -n "$firewall_section" ] && [ -n "$wan_port" ] &&
+		[ -n "$destination_port" ] || return 0
+
+	case "$target_kind" in
+		router)
+			dest_ip="$(uci -q get network.lan.ipaddr)"
+			dest_ip="${dest_ip%%/*}"
+			;;
+		host)
+			dest_ip="$(resolve_dhcp_host "$target_host" 2>/dev/null)"
+			[ -n "$dest_ip" ] ||
+				dest_ip="$(uci -q get "firewall.$firewall_section.dest_ip")"
+			;;
+		*)
+			return 0
+			;;
+	esac
+	[ -n "$dest_ip" ] || return 0
+
+	uci -q get "firewall.$firewall_section" >/dev/null 2>&1 ||
+		uci set "firewall.$firewall_section=redirect"
+	uci set "firewall.$firewall_section.name=$firewall_section"
+	uci set "firewall.$firewall_section.target=DNAT"
+	uci set "firewall.$firewall_section.src=wan"
+	uci set "firewall.$firewall_section.dest=lan"
+	uci set "firewall.$firewall_section.proto=$protocol"
+	uci set "firewall.$firewall_section.src_dport=$wan_port"
+	uci set "firewall.$firewall_section.dest_ip=$dest_ip"
+	uci set "firewall.$firewall_section.dest_port=$destination_port"
+	uci set "firewall.$firewall_section.enabled=$enabled"
+}
+
+config_load wan-access
+config_foreach ensure_rule service
+uci commit firewall
+
+if /etc/init.d/firewall running >/dev/null 2>&1; then
+	/etc/init.d/firewall reload >/dev/null 2>&1
+fi
+
+exit 0

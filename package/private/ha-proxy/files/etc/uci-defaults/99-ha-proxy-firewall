@@ -1,0 +1,39 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+config_load ha-proxy
+config_get wan_port settings wan_port 47189
+config_get https_port settings https_port 8443
+
+lan_ip="$(uci -q get network.lan.ipaddr)"
+[ -n "$lan_ip" ] || exit 0
+
+uci -q delete firewall.ha_web
+uci set firewall.ha_web=redirect
+uci set firewall.ha_web.name='ha_web'
+uci set firewall.ha_web.target='DNAT'
+uci set firewall.ha_web.src='wan'
+uci set firewall.ha_web.dest='lan'
+uci set firewall.ha_web.proto='tcp'
+uci set firewall.ha_web.src_dport="$wan_port"
+uci set firewall.ha_web.dest_ip="$lan_ip"
+uci set firewall.ha_web.dest_port="$https_port"
+
+uci -q delete firewall.ha_web_lan
+uci set firewall.ha_web_lan=redirect
+uci set firewall.ha_web_lan.name='ha_web_lan'
+uci set firewall.ha_web_lan.target='DNAT'
+uci set firewall.ha_web_lan.src='lan'
+uci set firewall.ha_web_lan.dest='lan'
+uci set firewall.ha_web_lan.proto='tcp'
+uci set firewall.ha_web_lan.src_dport="$wan_port"
+uci set firewall.ha_web_lan.dest_ip="$lan_ip"
+uci set firewall.ha_web_lan.dest_port="$https_port"
+
+uci commit firewall
+if /etc/init.d/firewall running >/dev/null 2>&1; then
+	/etc/init.d/firewall reload >/dev/null 2>&1
+fi
+
+exit 0
