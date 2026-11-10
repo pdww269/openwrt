@@ -3,6 +3,12 @@
 . /usr/share/libubox/jshn.sh
 
 CPU_POLICY=/sys/devices/system/cpu/cpufreq/policy0
+STATE_DIR=/tmp/mtk-soc
+PPE_TTL=10
+HISTORY_MAX=120
+HISTORY_AGE=1200
+
+mkdir -p "$STATE_DIR" 2>/dev/null
 
 read_file() {
 	local value
@@ -72,26 +78,6 @@ thermal_trips() {
 	printf '%s %s %s\n' "$warn" "$hot" "$crit"
 }
 
-ppe_summary() {
-	local file="$1"
-	[ -r "$file" ] || { printf '%s %s %s %s %s\n' -1 -1 -1 -1 -1; return; }
-	awk '
-		/^[0-9a-fA-F]+ / {
-			total++
-			if ($2 == "BND") {
-				bound++
-				for (i = 1; i <= NF; i++) {
-					if ($i ~ /^packets=/) { sub(/^packets=/, "", $i); packets += $i }
-					if ($i ~ /^bytes=/) { sub(/^bytes=/, "", $i); bytes += $i }
-				}
-			} else {
-				unbound++
-			}
-		}
-		END { printf "%d %d %d %.0f %.0f\n", total, bound, unbound, packets, bytes }
-	' "$file"
-}
-
 add_string_list() {
 	local key="$1" values="$2" item
 	json_add_array "$key"
@@ -101,35 +87,223 @@ add_string_list() {
 	json_close_array
 }
 
-port_path() {
-	case "$1" in
-		sfp-wan) echo 'SFP+ WAN' ;;
-		sfp-lan) echo 'SFP+ LAN' ;;
-		wan) echo 'RJ45 WAN' ;;
-		lan1) echo 'GbE LAN1' ;;
-		lan2) echo 'GbE LAN2' ;;
-		lan3) echo 'GbE LAN3' ;;
-		lan4) echo 'GbE LAN4' ;;
-		*) echo "$1" ;;
+topology_ensure() {
+	local compatible profile tmp stamp current
+	compatible=$(dt_string /proc/device-tree/compatible)
+	stamp="$STATE_DIR/topology.profile"
+	tmp="$STATE_DIR/topology.tsv.$$"
+
+	current=$(read_file "$stamp" 2>/dev/null)
+	if [ "$current" = "$compatible" ] && [ -s "$STATE_DIR/topology.tsv" ]; then
+		return 0
+	fi
+
+	case "$compatible" in
+		bananapi,bpi-r4*)
+			profile=r4
+			;;
+		*)
+			profile=generic
+			;;
 	esac
+
+	{
+		case "$profile" in
+			r4)
+				printf 'P\t%s\t%s\n' sfp-wan 'SFP+ WAN'
+				printf 'P\t%s\t%s\n' sfp-lan 'SFP+ LAN'
+				printf 'P\t%s\t%s\n' wan 'RJ45 WAN'
+				printf 'P\t%s\t%s\n' lan1 'GbE LAN1'
+				printf 'P\t%s\t%s\n' lan2 'GbE LAN2'
+				printf 'P\t%s\t%s\n' lan3 'GbE LAN3'
+				printf 'P\t%s\t%s\n' lan4 'GbE LAN4'
+				printf 'G\t%s\t%s\t%s\t%s\n' 2 sfp-wan 'SFP+ WAN' 0
+				printf 'G\t%s\t%s\t%s\t%s\n' 1 sfp-lan 'SFP+ LAN' 0
+				printf 'G\t%s\t%s\t%s\t%s\n' 0 eth0 'ESW / RJ45' 10000
+				;;
+			*)
+				for current in $(ls /sys/class/net 2>/dev/null); do
+					case "$current" in
+						lo|br-*|docker*|veth*|pppoe-*|wlan*|sit*|ip6*|gre*|utun*) continue ;;
+					esac
+					printf 'P\t%s\t%s\n' "$current" "$current"
+				done
+				;;
+		esac
+	} > "$tmp"
+
+	mv "$tmp" "$STATE_DIR/topology.tsv"
+	printf '%s' "$compatible" > "$stamp"
 }
 
-get_status() {
-	local ppe governor governor_list freq_list ticks
+ppe_cache_ensure() {
+	local now stamp engine limit summary_file entries_file
+	now=$(date +%s 2>/dev/null || echo 0)
+	stamp=$(read_file "$STATE_DIR/ppe.stamp" 2>/dev/null)
+	case "$stamp" in ''|*[!0-9]*) stamp=0 ;; esac
+	if [ $((now - stamp)) -le "$PPE_TTL" ] &&
+	   [ -s "$STATE_DIR/ppe-summary.tsv" ] &&
+	   [ -s "$STATE_DIR/ppe-entries.tsv" ]; then
+		return 0
+	fi
 
-	governor=$(read_file "$CPU_POLICY/scaling_governor")
-	governor_list=$(read_file "$CPU_POLICY/scaling_available_governors")
-	freq_list=$(read_file "$CPU_POLICY/scaling_available_frequencies")
-	ticks=$(awk '
+	summary_file="$STATE_DIR/ppe-summary.tsv.$$"
+	entries_file="$STATE_DIR/ppe-entries.tsv.$$"
+	: > "$summary_file"
+	: > "$entries_file"
+	limit=400
+
+	for engine in ppe0 ppe1 ppe2; do
+		if [ ! -r "/sys/kernel/debug/$engine/entries" ]; then
+			printf 'M\t%s\t-1\t-1\t-1\t-1\t-1\t0\n' "$engine" >> "$summary_file"
+			continue
+		fi
+		awk -v engine="$engine" -v max="$limit" '
+			BEGIN { FS = "[ \t]+"; OFS = "\t"; shown = 0 }
+			/^[0-9a-fA-F]+ / {
+				total++
+				if ($2 == "BND") bound++; else unbound++
+				orig = new = eth = vlan = packets = bytes = ""
+				for (i = 1; i <= NF; i++) {
+					if ($i ~ /^packets=/) {
+						packets = substr($i, 9)
+						if (packets ~ /^[0-9]+$/) total_packets += packets
+					} else if ($i ~ /^bytes=/) {
+						bytes = substr($i, 7)
+						if (bytes ~ /^[0-9]+$/) total_bytes += bytes
+					} else if ($i ~ /^orig=/) {
+						orig = substr($i, 6)
+					} else if ($i ~ /^new=/) {
+						new = substr($i, 5)
+					} else if ($i ~ /^eth=/) {
+						eth = substr($i, 5)
+					} else if ($i ~ /^vlan=/) {
+						vlan = substr($i, 6)
+					}
+				}
+				if (shown < max) {
+					type = $3 " " $4
+					printf "E\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", \
+						engine, $1, $2, type, orig, new, eth, vlan, \
+						(packets == "" ? 0 : packets), (bytes == "" ? 0 : bytes)
+					shown++
+				}
+			}
+			END {
+				printf "M\t%s\t%d\t%d\t%d\t%.0f\t%.0f\t%d\n", \
+					engine, total, bound, unbound, total_packets, total_bytes, shown
+			}
+		' "/sys/kernel/debug/$engine/entries" >> "$entries_file"
+	done
+
+	awk -F '\t' '$1 == "M" { print }' "$entries_file" >> "$summary_file"
+	awk -F '\t' '$1 == "E"' "$entries_file" > "$entries_file.clean"
+	mv "$entries_file.clean" "$entries_file"
+	mv "$summary_file" "$STATE_DIR/ppe-summary.tsv"
+	mv "$entries_file" "$STATE_DIR/ppe-entries.tsv"
+	printf '%s' "$now" > "$STATE_DIR/ppe.stamp"
+}
+
+add_ppe_summary() {
+	local kind engine total bound unbound packets bytes shown
+	json_add_object ppe
+	while IFS='	' read -r kind engine total bound unbound packets bytes shown; do
+		[ "$kind" = "M" ] || continue
+		json_add_object "$engine"
+		json_add_int total "$total"
+		json_add_int bound "$bound"
+		json_add_int unbound "$unbound"
+		json_add_int packets "$packets"
+		json_add_int bytes "$bytes"
+		json_close_object
+	done < "$STATE_DIR/ppe-summary.tsv"
+	json_close_object
+}
+
+cpu_ticks() {
+	awk '
 		/^cpu[0-9]+[ \t]/ {
 			total = 0
 			for (i = 2; i <= 9; i++)
 				total += $i
-			printf "%d %d ", total, $5 + $6
+			printf "%d\t%d\n", total, $5 + $6
 		}
-	' /proc/stat 2>/dev/null)
+	' /proc/stat 2>/dev/null
+}
 
-	json_init
+update_cpu_history() {
+	local now current usage hist
+	now=$(date +%s 2>/dev/null || echo 0)
+	current="$STATE_DIR/cpu-current.$$"
+	hist="$STATE_DIR/cpu-history"
+	cpu_ticks > "$current"
+
+	if [ -s "$STATE_DIR/cpu-previous" ] && [ -s "$current" ]; then
+		usage=$(awk -F '\t' '
+			NR == FNR { old_total[FNR] = $1; old_idle[FNR] = $2; next }
+			{
+				dt = $1 - old_total[FNR]
+				di = $2 - old_idle[FNR]
+				if (dt > 0 && di >= 0 && di <= dt) {
+					v = (1 - di / dt) * 100
+					printf "%s%.1f", (sep ? "," : ""), v
+					sep = ","
+					measured = 1
+				}
+			}
+			END { if (measured) print "" }
+		' "$STATE_DIR/cpu-previous" "$current")
+		if [ -n "$usage" ]; then
+			printf '%s|%s\n' "$now" "$usage" >> "$hist"
+		fi
+	fi
+
+	mv "$current" "$STATE_DIR/cpu-previous"
+	if [ -s "$hist" ]; then
+		awk -F '|' -v cutoff=$((now - HISTORY_AGE)) '$1 >= cutoff' "$hist" |
+			tail -n "$HISTORY_MAX" > "$hist.$$"
+		mv "$hist.$$" "$hist"
+	fi
+}
+
+add_cpu_history() {
+	local ts values value rest
+	json_add_array cpu_history
+	if [ -s "$STATE_DIR/cpu-history" ]; then
+		while IFS='|' read -r ts values; do
+			json_add_object
+			json_add_int t "$ts"
+			json_add_array u
+			rest=$values
+			while [ -n "$rest" ]; do
+				case "$rest" in
+					*,*)
+						value=${rest%%,*}
+						rest=${rest#*,}
+						;;
+					*)
+						value=$rest
+						rest=
+						;;
+				esac
+				json_add_int u "$value"
+			done
+			json_close_array
+			json_close_object
+		done < "$STATE_DIR/cpu-history"
+	fi
+	json_close_array
+}
+
+add_status_fields() {
+	local governor governor_list freq_list ticks
+
+	governor=$(read_file "$CPU_POLICY/scaling_governor")
+	governor_list=$(read_file "$CPU_POLICY/scaling_available_governors")
+	freq_list=$(read_file "$CPU_POLICY/scaling_available_frequencies")
+	update_cpu_history
+	ppe_cache_ensure
+
 	json_add_string model "$(dt_string /proc/device-tree/model)"
 	json_add_string compatible "$(dt_string /proc/device-tree/compatible)"
 	json_add_string hostname "$(read_file /proc/sys/kernel/hostname)"
@@ -150,6 +324,8 @@ get_status() {
 	json_add_string cpu_governor "${governor:-unknown}"
 	add_string_list cpu_available_governors "$governor_list"
 	add_string_list cpu_available_freqs "$freq_list"
+
+	ticks=$(cpu_ticks)
 	json_add_array cpu_ticks
 	set -- $ticks
 	while [ "$#" -ge 2 ]; do
@@ -160,6 +336,8 @@ get_status() {
 		shift 2
 	done
 	json_close_array
+	add_cpu_history
+
 	json_add_int fan_pwm "$(hwmon_value pwmfan pwm1)"
 	json_add_int fan_rpm "$(hwmon_value pwmfan fan1_input)"
 	json_add_int sfp1_temp_mc "$(hwmon_temp sfp1)"
@@ -177,27 +355,15 @@ get_status() {
 	json_add_int ethdma_fe "$(read_num /sys/kernel/debug/clk/ethdma_fe_en/clk_rate)"
 	json_close_object
 
-	json_add_object ppe
-	for ppe in ppe0 ppe1 ppe2; do
-		set -- $(ppe_summary "/sys/kernel/debug/$ppe/entries")
-		json_add_object "$ppe"
-		json_add_int total "$1"
-		json_add_int bound "$2"
-		json_add_int unbound "$3"
-		json_add_int packets "$4"
-		json_add_int bytes "$5"
-		json_close_object
-	done
-	json_close_object
-	json_dump
+	add_ppe_summary
 }
 
-get_ports() {
-	local port speed carrier duplex operstate mac
-
-	json_init
+add_ports_fields() {
+	local kind port path speed carrier duplex operstate mac
+	topology_ensure
 	json_add_array ports
-	for port in sfp-wan sfp-lan wan lan1 lan2 lan3 lan4; do
+	while IFS='	' read -r kind port path; do
+		[ "$kind" = "P" ] || continue
 		[ -d "/sys/class/net/$port" ] || continue
 		speed=$(read_num "/sys/class/net/$port/speed")
 		carrier=$(read_file "/sys/class/net/$port/carrier")
@@ -207,7 +373,7 @@ get_ports() {
 
 		json_add_object
 		json_add_string name "$port"
-		json_add_string path "$(port_path "$port")"
+		json_add_string path "$path"
 		json_add_string state "${operstate:-unknown}"
 		json_add_boolean up "$([ "$carrier" = "1" ] && echo 1 || echo 0)"
 		json_add_int speed_mbps "$speed"
@@ -222,18 +388,18 @@ get_ports() {
 		json_add_int rx_dropped "$(read_num "/sys/class/net/$port/statistics/rx_dropped")"
 		json_add_int tx_dropped "$(read_num "/sys/class/net/$port/statistics/tx_dropped")"
 		json_close_object
-	done
+	done < "$STATE_DIR/topology.tsv"
 	json_close_array
-	json_dump
 }
 
-get_gdm() {
-	local index ifname path fixed_speed speed carrier operstate rx_bytes tx_bytes
-	local rx_packets tx_packets rx_errors tx_errors rx_dropped tx_dropped
+add_gdm_fields() {
+	local kind index ifname path fixed_speed speed carrier operstate
+	local rx_bytes tx_bytes rx_packets tx_packets rx_errors tx_errors rx_dropped tx_dropped
 
-	json_init
+	topology_ensure
 	json_add_array gdm
-	while IFS='|' read -r index ifname path fixed_speed; do
+	while IFS='	' read -r kind index ifname path fixed_speed; do
+		[ "$kind" = "G" ] || continue
 		[ -d "/sys/class/net/$ifname" ] || continue
 
 		speed=$(read_num "/sys/class/net/$ifname/speed")
@@ -267,60 +433,108 @@ get_gdm() {
 		json_add_int rx_dropped "$rx_dropped"
 		json_add_int tx_dropped "$tx_dropped"
 		json_close_object
-	done <<-EOF
-	2|sfp-wan|SFP+ WAN|0
-	1|sfp-lan|SFP+ LAN|0
-	0|eth0|ESW / RJ45|10000
-	EOF
+	done < "$STATE_DIR/topology.tsv"
 	json_close_array
+}
+
+add_ppe_entries_fields() {
+	local kind engine index state type orig new eth vlan packets bytes
+	local available=0
+
+	ppe_cache_ensure
+	if awk -F '\t' '$1 == "M" && $3 >= 0 { found = 1 } END { exit !found }' "$STATE_DIR/ppe-summary.tsv"; then
+		available=1
+	fi
+
+	json_add_boolean available "$available"
+	json_add_int generated_at "$(read_file "$STATE_DIR/ppe.stamp")"
+	json_add_object summary
+	add_ppe_summary
+	json_close_object
+	json_add_array entries
+	while IFS='	' read -r kind engine index state type orig new eth vlan packets bytes; do
+		[ "$kind" = "E" ] || continue
+		json_add_object
+		json_add_string engine "$engine"
+		json_add_string index "$index"
+		json_add_string state "$state"
+		json_add_string type "$type"
+		json_add_string orig "$orig"
+		json_add_string new_flow "$new"
+		json_add_string eth "$eth"
+		json_add_string vlan "$vlan"
+		json_add_int packets "$packets"
+		json_add_int bytes "$bytes"
+		json_close_object
+	done < "$STATE_DIR/ppe-entries.tsv"
+	json_close_array
+}
+
+get_status() {
+	json_init
+	add_status_fields
+	json_dump
+}
+
+get_ports() {
+	json_init
+	add_ports_fields
+	json_dump
+}
+
+get_gdm() {
+	json_init
+	add_gdm_fields
 	json_dump
 }
 
 get_ppe_entries() {
-	local engine index state type orig new eth vlan packets bytes count=0
+	json_init
+	add_ppe_entries_fields
+	json_dump
+}
+
+get_dashboard() {
+	local payload="$1" scope=all
+	if [ -z "$payload" ]; then
+		IFS= read -r payload
+	fi
+	if [ -n "$payload" ]; then
+		json_load "$payload"
+		json_get_var scope scope
+	fi
+	case "$scope" in
+		fast|gdm|ppe|all) ;;
+		*) scope=all ;;
+	esac
 
 	json_init
-	json_add_boolean available 1
-	json_add_array entries
-	for engine in ppe0 ppe1 ppe2; do
-		[ -r "/sys/kernel/debug/$engine/entries" ] || continue
-		while IFS='	' read -r index state type orig new eth vlan packets bytes; do
-			[ -n "$index" ] || continue
-			case "$packets" in ''|*[!0-9]*) packets=0 ;; esac
-			case "$bytes" in ''|*[!0-9]*) bytes=0 ;; esac
-			json_add_object
-			json_add_string engine "$engine"
-			json_add_string index "$index"
-			json_add_string state "$state"
-			json_add_string type "$type"
-			json_add_string orig "$orig"
-			json_add_string new_flow "$new"
-			json_add_string eth "$eth"
-			json_add_string vlan "$vlan"
-			json_add_int packets "$packets"
-			json_add_int bytes "$bytes"
+	json_add_int generated_at "$(date +%s 2>/dev/null || echo 0)"
+	json_add_string scope "$scope"
+	case "$scope" in
+		fast|all)
+			json_add_object status
+			add_status_fields
 			json_close_object
-			count=$((count + 1))
-			[ "$count" -ge 400 ] && break 2
-		done <<-EOF
-		$(awk '
-			/^[0-9a-fA-F]+ / {
-				idx=$1; state=$2; type=$3 " " $4
-				orig=new=eth=vlan=packets=bytes=""
-				for (i = 1; i <= NF; i++) {
-					if ($i ~ /^orig=/) { orig=substr($i, 6) }
-					else if ($i ~ /^new=/) { new=substr($i, 5) }
-					else if ($i ~ /^eth=/) { eth=substr($i, 5) }
-					else if ($i ~ /^vlan=/) { vlan=substr($i, 6) }
-					else if ($i ~ /^packets=/) { packets=substr($i, 9) }
-					else if ($i ~ /^bytes=/) { bytes=substr($i, 7) }
-				}
-				printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", idx, state, type, orig, new, eth, vlan, packets, bytes
-			}
-		' "/sys/kernel/debug/$engine/entries" 2>/dev/null)
-		EOF
-	done
-	json_close_array
+			json_add_object ports
+			add_ports_fields
+			json_close_object
+			;;
+	esac
+	case "$scope" in
+		gdm|all)
+			json_add_object gdm
+			add_gdm_fields
+			json_close_object
+			;;
+	esac
+	case "$scope" in
+		ppe|all)
+			json_add_object ppe
+			add_ppe_entries_fields
+			json_close_object
+			;;
+	esac
 	json_dump
 }
 
@@ -361,7 +575,7 @@ set_cpu_settings() {
 
 case "$1" in
 	list)
-		echo '{"getStatus":{},"getPorts":{},"getGdm":{},"getPpeEntries":{},"setCpuSettings":{"governor":"String","max_freq":"Integer"}}'
+		echo '{"getStatus":{},"getPorts":{},"getGdm":{},"getPpeEntries":{},"getDashboard":{"scope":"String"},"setCpuSettings":{"governor":"String","max_freq":"Integer"}}'
 		;;
 	call)
 		case "$2" in
@@ -369,6 +583,7 @@ case "$1" in
 			getPorts) get_ports ;;
 			getGdm) get_gdm ;;
 			getPpeEntries) get_ppe_entries ;;
+			getDashboard) get_dashboard "$3" ;;
 			setCpuSettings) set_cpu_settings "$3" ;;
 		esac
 		;;

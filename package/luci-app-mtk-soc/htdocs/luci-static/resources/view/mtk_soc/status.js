@@ -35,10 +35,12 @@ function E(tag, attrs, children) {
 	return domCreate(tag, attrs, children);
 }
 
-var callStatus = rpc.declare({ object: 'luci.mtk_soc', method: 'getStatus', expect: {} });
-var callPorts = rpc.declare({ object: 'luci.mtk_soc', method: 'getPorts', expect: {} });
-var callGdm = rpc.declare({ object: 'luci.mtk_soc', method: 'getGdm', expect: {} });
-var callPpeEntries = rpc.declare({ object: 'luci.mtk_soc', method: 'getPpeEntries', expect: {} });
+var callDashboard = rpc.declare({
+	object: 'luci.mtk_soc',
+	method: 'getDashboard',
+	params: [ 'scope' ],
+	expect: {}
+});
 var callSetCpu = rpc.declare({
 	object: 'luci.mtk_soc',
 	method: 'setCpuSettings',
@@ -46,11 +48,9 @@ var callSetCpu = rpc.declare({
 	expect: {}
 });
 
-var LOAD_KEY = 'mtk-soc.load-history.v1';
-var BASE_KEY = 'mtk-soc.load-baseline.v1';
 var FREQ_KEY = 'mtk-soc.freq-history.v1';
 var MAX_SAMPLES = 120;
-var HISTORY_AGE = 30 * 60 * 1000;
+var HISTORY_AGE = 20 * 60 * 1000;
 
 var GOVERNOR_LABELS = {
 	conservative: '保守模式',
@@ -174,14 +174,12 @@ function saveStored(key, value) {
 	} catch (e) {}
 }
 
-var loadHistory = loadStored(LOAD_KEY, []).filter(function(s) {
-	return s && typeof s.t === 'number' && Array.isArray(s.u);
-}).slice(-MAX_SAMPLES);
-
-var loadBaseline = loadStored(BASE_KEY, null);
+var loadHistory = [];
 var freqHistory = loadStored(FREQ_KEY, []).filter(function(s) {
 	return s && typeof s.t === 'number' && typeof s.f === 'number';
 }).slice(-MAX_SAMPLES);
+var latestStatus = {};
+var lastSuccessAt = 0;
 var ppeCurrentEntries = [];
 var ppeStateFilter = '';
 var ppeEngineFilter = '';
@@ -205,32 +203,20 @@ function mergeFixed(fixed, dynamic) {
 	return out.sort();
 }
 
-function pushLoad(ticks) {
-	if (!Array.isArray(ticks) || !ticks.length)
+function applyCpuHistory(status) {
+	if (!Array.isArray(status.cpu_history))
 		return;
 
-	var current = ticks.map(function(t) { return [ Number(t.total), Number(t.idle) ]; });
 	var now = Date.now();
-	if (loadBaseline && Array.isArray(loadBaseline.ticks) && loadBaseline.ticks.length === current.length) {
-		var usage = [], measured = false;
-		for (var i = 0; i < current.length; i++) {
-			var dt = current[i][0] - loadBaseline.ticks[i][0];
-			var di = current[i][1] - loadBaseline.ticks[i][1];
-			if (dt > 0 && di >= 0 && di <= dt) {
-				usage.push(Math.round((1 - di / dt) * 1000) / 10);
-				measured = true;
-			} else {
-				usage.push(null);
-			}
-		}
-		if (measured) {
-			loadHistory.push({ t: now, u: usage });
-			loadHistory = loadHistory.filter(function(s) { return s.t >= now - HISTORY_AGE; }).slice(-MAX_SAMPLES);
-			saveStored(LOAD_KEY, loadHistory);
-		}
-	}
-	loadBaseline = { t: now, ticks: current };
-	saveStored(BASE_KEY, loadBaseline);
+	loadHistory = status.cpu_history.filter(function(sample) {
+		return sample && isFinite(sample.t) && Array.isArray(sample.u) &&
+			sample.t * 1000 >= now - HISTORY_AGE;
+	}).map(function(sample) {
+		return {
+			t: Number(sample.t) * 1000,
+			u: sample.u.map(function(value) { return Number(value); })
+		};
+	}).slice(-MAX_SAMPLES);
 }
 
 function pushFreq(khz) {
@@ -382,8 +368,8 @@ function renderCpuControlsBody(s, onApply) {
 	return E('div', { 'class': 'mtk-cpu-control' }, [
 		E('div', { 'class': 'mtk-cpu-facts' }, [
 			E('span', {}, _('架构')), E('strong', {}, s.cpu_arch || '-'),
-			E('span', {}, _('当前频率')), E('strong', {}, fmtMHz(s.cpu_cur_freq)),
-			E('span', {}, _('频率范围')), E('strong', {}, fmtMHz(s.cpu_min_freq) + ' / ' + fmtMHz(s.cpu_max_freq))
+			E('span', {}, _('当前频率')), E('strong', { id: 'mtk-cpu-current-freq' }, fmtMHz(s.cpu_cur_freq)),
+			E('span', {}, _('频率范围')), E('strong', { id: 'mtk-cpu-freq-range' }, fmtMHz(s.cpu_min_freq) + ' / ' + fmtMHz(s.cpu_max_freq))
 		]),
 		E('div', { 'class': 'mtk-cpu-form' }, [
 			E('label', { 'class': 'mtk-field' }, [ E('span', {}, _('运行模式')), governor ]),
@@ -399,22 +385,26 @@ function portSpeed(p) {
 	return p.speed_mbps + ' Mbps / ' + duplexLabel(p.duplex);
 }
 
+function stackTd(label, value, cls) {
+	return E('td', { 'class': 'td' + (cls ? ' ' + cls : ''), 'data-label': label }, value);
+}
+
 function renderPorts(ports) {
 	var rows = (ports.ports || []).map(function(p) {
 		return E('tr', { 'class': 'tr' }, [
-			E('td', { 'class': 'td' }, E('strong', {}, p.name)),
-			E('td', { 'class': 'td' }, p.path || '-'),
-			E('td', { 'class': 'td' }, serviceBadge(!!p.up)),
-			E('td', { 'class': 'td' }, portSpeed(p)),
-			E('td', { 'class': 'td' }, fmtBytes(p.rx_bytes) + ' / ' + fmtBytes(p.tx_bytes)),
-			E('td', { 'class': 'td' }, fmtRate(p.rx_packets) + ' / ' + fmtRate(p.tx_packets)),
-			E('td', { 'class': 'td' }, fmtNumber(p.rx_errors) + ' / ' + fmtNumber(p.tx_errors)),
-			E('td', { 'class': 'td' }, fmtNumber(p.rx_dropped) + ' / ' + fmtNumber(p.tx_dropped))
+			stackTd(_('端口'), E('strong', {}, p.name)),
+			stackTd(_('路径'), p.path || '-'),
+			stackTd(_('连接状态'), serviceBadge(!!p.up)),
+			stackTd(_('速率 / 双工'), portSpeed(p)),
+			stackTd(_('接收 / 发送字节'), fmtBytes(p.rx_bytes) + ' / ' + fmtBytes(p.tx_bytes)),
+			stackTd(_('接收 / 发送包数'), fmtRate(p.rx_packets) + ' / ' + fmtRate(p.tx_packets)),
+			stackTd(_('接收 / 发送错误'), fmtNumber(p.rx_errors) + ' / ' + fmtNumber(p.tx_errors)),
+			stackTd(_('接收 / 发送丢包'), fmtNumber(p.rx_dropped) + ' / ' + fmtNumber(p.tx_dropped))
 		]);
 	});
 
 	return card(_('以太网端口'), E('div', { style: 'overflow-x:auto' },
-		E('table', { 'class': 'table' }, [
+		E('table', { 'class': 'table mtk-stack-table' }, [
 			E('thead', {}, E('tr', { 'class': 'tr table-titles' }, [
 				E('th', { 'class': 'th' }, _('端口')),
 				E('th', { 'class': 'th' }, _('路径')),
@@ -425,7 +415,8 @@ function renderPorts(ports) {
 				E('th', { 'class': 'th' }, _('接收 / 发送错误')),
 				E('th', { 'class': 'th' }, _('接收 / 发送丢包'))
 			])),
-			E('tbody', {}, rows)
+			E('tbody', {}, rows.length ? rows :
+				E('tr', { 'class': 'tr' }, E('td', { 'class': 'td', colspan: 8 }, _('暂无端口数据'))))
 		])
 	));
 }
@@ -455,27 +446,27 @@ function renderGdm(data) {
 		var stateClass = entry.up ? (traffic ? 'label success' : 'label') : 'label warning';
 
 		return E('tr', { 'class': 'tr' }, [
-			E('td', { 'class': 'td' }, [
+			stackTd(_('GDM / 接口'), [
 				E('strong', {}, entry.gdm || '-'),
 				E('div', { 'class': 'mtk-gdm-interface' }, entry.path || entry.interface || '-')
 			]),
-			E('td', { 'class': 'td' }, E('div', { 'class': 'mtk-gdm-path' }, [
+			stackTd(_('数据路径'), E('div', { 'class': 'mtk-gdm-path' }, [
 				E('span', { 'class': 'mtk-gdm-node' }, entry.gmac || '-'),
 				E('span', { 'class': 'mtk-gdm-arrow' }, '\u203a'),
 				E('span', { 'class': 'mtk-gdm-node mtk-gdm-node--dma' }, entry.gdm || '-'),
 				E('span', { 'class': 'mtk-gdm-arrow' }, '\u203a'),
 				E('span', { 'class': 'mtk-gdm-node mtk-gdm-node--ppe' }, entry.ppe || '-')
 			])),
-			E('td', { 'class': 'td mono' }, linkSpeed(entry)),
-			E('td', { 'class': 'td' }, E('span', { 'class': 'label' }, entry.ppe || '-')),
-			E('td', { 'class': 'td mono' }, fmtBytes(entry.rx_bytes) + ' / ' + fmtBytes(entry.tx_bytes)),
-			E('td', { 'class': 'td mono' }, fmtNumber(errors) + ' / ' + fmtNumber(drops)),
-			E('td', { 'class': 'td' }, E('span', { 'class': stateClass }, state))
+			stackTd(_('链路'), linkSpeed(entry), 'mono'),
+			stackTd('PPE', E('span', { 'class': 'label' }, entry.ppe || '-')),
+			stackTd(_('接收 / 发送'), fmtBytes(entry.rx_bytes) + ' / ' + fmtBytes(entry.tx_bytes), 'mono'),
+			stackTd(_('错误 / 丢包'), fmtNumber(errors) + ' / ' + fmtNumber(drops), 'mono'),
+			stackTd(_('状态'), E('span', { 'class': stateClass }, state))
 		]);
 	});
 
 	return card(_('GDM 数据通路'), E('div', { style: 'overflow-x:auto' },
-		E('table', { 'class': 'table mtk-gdm-table' }, [
+		E('table', { 'class': 'table mtk-gdm-table mtk-stack-table' }, [
 			E('thead', {}, E('tr', { 'class': 'tr table-titles' }, [
 				E('th', { 'class': 'th' }, _('GDM / 接口')),
 				E('th', { 'class': 'th' }, _('数据路径')),
@@ -587,16 +578,16 @@ function renderPpeEngines(s) {
 
 function ppeEntryRow(e) {
 	return E('tr', { 'class': 'tr' }, [
-		E('td', { 'class': 'td' }, e.engine || '-'),
-		E('td', { 'class': 'td' }, e.index || '-'),
-		E('td', { 'class': 'td' }, E('span', { 'class': e.state === 'BND' ? 'label success' : 'label' }, e.state || '-')),
-		E('td', { 'class': 'td' }, e.type || '-'),
-		E('td', { 'class': 'td' }, e.orig || '-'),
-		E('td', { 'class': 'td' }, e.new_flow || '-'),
-		E('td', { 'class': 'td' }, e.eth || '-'),
-		E('td', { 'class': 'td' }, e.vlan || '-'),
-		E('td', { 'class': 'td' }, fmtNumber(e.packets)),
-		E('td', { 'class': 'td' }, fmtBytes(e.bytes))
+		stackTd(_('引擎'), e.engine || '-'),
+		stackTd(_('索引'), e.index || '-'),
+		stackTd(_('状态'), E('span', { 'class': e.state === 'BND' ? 'label success' : 'label' }, e.state || '-')),
+		stackTd(_('类型'), e.type || '-'),
+		stackTd(_('原始连接'), e.orig || '-'),
+		stackTd(_('新连接'), e.new_flow || '-'),
+		stackTd(_('以太网'), e.eth || '-'),
+		stackTd('VLAN', e.vlan || '-'),
+		stackTd(_('数据包'), fmtNumber(e.packets)),
+		stackTd(_('字节'), fmtBytes(e.bytes))
 	]);
 }
 
@@ -673,7 +664,7 @@ function renderPpeEntries(data) {
 	return card(_('PPE 流卸载表'), E('div', {}, [
 		toolbar,
 		E('div', { style: 'overflow-x:auto' },
-			E('div', { style: 'max-height:32rem;overflow:auto' }, E('table', { 'class': 'table' }, [
+				E('div', { style: 'max-height:32rem;overflow:auto' }, E('table', { 'class': 'table mtk-stack-table' }, [
 				E('thead', {}, E('tr', { 'class': 'tr table-titles' }, [
 					E('th', {}, _('引擎')), E('th', {}, _('索引')), E('th', {}, _('状态')),
 					E('th', {}, _('类型')), E('th', {}, _('原始连接')), E('th', {}, _('新连接')),
@@ -771,31 +762,115 @@ function renderFreqChart(s) {
 	});
 }
 
-function applyStatus(refs, status, ports, entries, gdm) {
-	pushLoad(status.cpu_ticks);
+function refreshBadge() {
+	var text = lastSuccessAt ? _('已更新') + ' ' + fmtClock(lastSuccessAt * 1000) :
+		_('等待首次数据');
+	return aui.pill(text, lastSuccessAt ? 'ok' : 'info');
+}
+
+function staleBadge() {
+	var text = lastSuccessAt ? _('刷新失败，保留') + ' ' + fmtClock(lastSuccessAt * 1000) :
+		_('刷新失败');
+	return aui.pill(text, 'warn');
+}
+
+function updateFreshness(refs, failed) {
+	if (refs.fresh)
+		refs.fresh.replaceChildren(failed ? staleBadge() : refreshBadge());
+}
+
+function applyFast(refs, data) {
+	var status = data.status || {};
+	latestStatus = status;
+	applyCpuHistory(status);
 	pushFreq(status.cpu_cur_freq);
 
-	refs.ports.replaceChildren(renderPorts(ports));
-	refs.gdm.replaceChildren(renderGdm(gdm));
+	if (data.ports)
+		refs.ports.replaceChildren(renderPorts(data.ports));
 	refs.cpuInfo.replaceChildren(renderCpuInfoTable(status));
 	refs.cpuUsage.replaceChildren(renderUsageChart());
 	refs.cpuFreq.replaceChildren(renderFreqChart(status));
 	refs.npu.replaceChildren(renderNpuTiles(status));
 	refs.engines.replaceChildren(renderPpeEngines(status));
 	refs.thermal.replaceChildren(renderThermal(status));
-	refs.tables.replaceChildren(renderPpeEntries(entries));
+
+	var currentFreq = document.getElementById('mtk-cpu-current-freq');
+	var freqRange = document.getElementById('mtk-cpu-freq-range');
+	if (currentFreq)
+		currentFreq.textContent = fmtMHz(status.cpu_cur_freq);
+	if (freqRange)
+		freqRange.textContent = fmtMHz(status.cpu_min_freq) + ' / ' + fmtMHz(status.cpu_max_freq);
+}
+
+function applyGdm(refs, data) {
+	if (data.gdm)
+		refs.gdm.replaceChildren(renderGdm(data.gdm));
+}
+
+function applyPpe(refs, ppe) {
+	var summary = ppe.summary && ppe.summary.ppe ? ppe.summary.ppe : (ppe.summary || {});
+	latestStatus = Object.assign({}, latestStatus, { ppe: summary });
+	refs.npu.replaceChildren(renderNpuTiles(latestStatus));
+	refs.engines.replaceChildren(renderPpeEngines(latestStatus));
+	refs.tables.replaceChildren(renderPpeEntries(ppe));
+}
+
+function applyDashboard(refs, data) {
+	data = data || {};
+	if (data.status)
+		applyFast(refs, data);
+	if (data.gdm)
+		applyGdm(refs, data);
+	if (data.ppe)
+		applyPpe(refs, data.ppe);
+
+	if (data.generated_at && Number(data.generated_at) > 0)
+		lastSuccessAt = Number(data.generated_at);
+	updateFreshness(refs, false);
+}
+
+function pollDashboard(refs) {
+	if (pollDashboard.busy)
+		return Promise.resolve();
+
+	var now = Date.now();
+	var scopes = [];
+	if (now >= (pollDashboard.nextFast || 0)) {
+		scopes.push('fast');
+		pollDashboard.nextFast = now + 10000;
+	}
+	if (now >= (pollDashboard.nextGdm || 0)) {
+		scopes.push('gdm');
+		pollDashboard.nextGdm = now + 15000;
+	}
+	if (now >= (pollDashboard.nextPpe || 0)) {
+		scopes.push('ppe');
+		pollDashboard.nextPpe = now + 20000;
+	}
+	if (!scopes.length)
+		return Promise.resolve();
+
+	pollDashboard.busy = true;
+	return Promise.all(scopes.map(function(scope) {
+		return callDashboard(scope);
+	})).then(function(results) {
+		results.forEach(function(result) {
+			applyDashboard(refs, result);
+		});
+	}, function() {
+		updateFreshness(refs, true);
+	}).then(function() {
+		pollDashboard.busy = false;
+	});
 }
 
 return view.extend({
 	load: function() {
-		return Promise.all([ callStatus(), callPorts(), callPpeEntries(), callGdm() ]);
+		return callDashboard('all');
 	},
 
 	render: function(data) {
-		var status = data[0] || {};
-		var ports = data[1] || {};
-		var entries = data[2] || {};
-		var gdm = data[3] || {};
+		var status = data.status || {};
 		aui.ensureCss();
 		var pageCss = [
 			'.mtk-soc-page .table td,.mtk-soc-page .table th{padding:.32rem .45rem}',
@@ -847,8 +922,21 @@ return view.extend({
 			,'.mtk-gdm-node--dma{color:#4dabf7;border-color:rgba(77,171,247,.45);background:rgba(77,171,247,.08)}'
 			,'.mtk-gdm-node--ppe{color:#ab9cff;border-color:rgba(139,124,246,.48);background:rgba(139,124,246,.09)}'
 			,'.mtk-gdm-arrow{color:var(--text-color-medium,#7e858e)}'
+			,'.mtk-soc-refresh{display:flex;justify-content:flex-end;margin:-.2rem 0 .6rem}'
+			,'@media (max-width:720px){'
+			,'.mtk-soc-cpu-grid{grid-template-columns:1fr!important;grid-template-rows:none!important}'
+			,'.mtk-soc-cpu-cell{min-height:180px}'
+			,'.mtk-stack-table thead{display:none}'
+			,'.mtk-stack-table,.mtk-stack-table tbody,.mtk-stack-table tr,.mtk-stack-table td{display:block;width:100%}'
+			,'.mtk-stack-table tr{padding:.45rem 0;border-bottom:1px solid rgba(127,127,127,.22)}'
+			,'.mtk-stack-table td{border:0;padding:.2rem .45rem!important;white-space:normal!important}'
+			,'.mtk-stack-table td:before{content:attr(data-label);display:block;color:var(--text-color-medium,#8a8f98);font-size:.72rem;font-weight:600}'
+			,'.mtk-gdm-table{table-layout:auto}'
+			,'.mtk-gdm-path{flex-wrap:wrap}'
+			,'}'
 		].join('');
 		var refs = {
+			fresh: E('div', { 'class': 'mtk-soc-refresh', id: 'mtk-soc-freshness' }),
 			ports: E('div', { id: 'mtk-soc-ports' }),
 			gdm: E('div', { id: 'mtk-soc-gdm' }),
 			cpuInfo: E('div', { 'class': 'mtk-soc-cpu-body' }),
@@ -872,6 +960,7 @@ return view.extend({
 		var root = E('div', { 'class': 'cbi-map airoha-page' }, [
 			E('style', {}, pageCss),
 			E('h2', {}, _('MediaTek SoC 状态')),
+			refs.fresh,
 			E('div', { 'class': 'mtk-soc-page', id: 'mtk-soc-body', style: 'margin-top:.5rem' }, [
 				refs.ports,
 				cpuBlock,
@@ -886,19 +975,17 @@ return view.extend({
 		refs.cpuControl.appendChild(renderCpuControlsBody(status, function(governor, maxFreq) {
 			return callSetCpu(governor, maxFreq).then(function() {
 				ui.addNotification(null, E('p', {}, _('CPU 设置已应用')), 'info');
-				return Promise.all([ callStatus(), callPorts(), callPpeEntries(), callGdm() ]).then(function(next) {
-					applyStatus(refs, next[0] || {}, next[1] || {}, next[2] || {}, next[3] || {});
+				return callDashboard('fast').then(function(next) {
+					applyDashboard(refs, next);
 				});
 			});
 		}));
 
-		applyStatus(refs, status, ports, entries, gdm);
-
-		poll.add(L.bind(function() {
-			return Promise.all([ callStatus(), callPorts(), callPpeEntries(), callGdm() ]).then(function(next) {
-				applyStatus(refs, next[0] || {}, next[1] || {}, next[2] || {}, next[3] || {});
-			});
-		}, this), 5);
+		applyDashboard(refs, data);
+		pollDashboard.nextFast = Date.now() + 10000;
+		pollDashboard.nextGdm = Date.now() + 15000;
+		pollDashboard.nextPpe = Date.now() + 20000;
+		poll.add(L.bind(pollDashboard, this, refs), 5);
 
 		return root;
 	},
