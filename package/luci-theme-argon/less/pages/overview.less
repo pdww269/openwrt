@@ -75,18 +75,27 @@
     gap: 0 !important;
   }
 
-  // Native port status uses a 70px grid. Keep the counters readable and wrap
-  // whole cards when multiple physical ports are present.
-  div[style*="display:grid;grid-template-columns:repeat"] {
-    display: flex !important;
-    justify-content: space-evenly !important;
-    flex-wrap: wrap;
+  // Match native port cards by their icons, independently of inline CSS formatting.
+  #view div:has(> .ifacebox > .ifacebox-body > img[src*="/icons/port_"]) {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(~"min(100%, 8.5rem)", 1fr)) !important;
+    // ImmortalWrt centers fixed-width cards; let both native variants fill a row.
+    align-items: stretch !important;
+    justify-items: stretch !important;
+    gap: var(--field-gap);
+    margin: 0 !important;
+    padding: var(--field-gap) var(--section-inset);
 
-    .ifacebox {
-      flex: 0 1 8.5rem;
-      min-width: 8rem !important;
+    > .ifacebox {
+      width: auto !important;
+      min-width: 0 !important;
       max-width: 100% !important;
+      margin: 0 !important;
       text-align: center;
+
+      > .ifacebox-head:first-child {
+        overflow-wrap: anywhere;
+      }
 
       .ifacebox-body {
         font-size: .75rem;
@@ -103,6 +112,11 @@
         }
       }
 
+      > .ifacebox-body:nth-child(2) {
+        flex-grow: 1;
+        overflow-wrap: anywhere;
+      }
+
       > .ifacebox-body:last-child {
         padding: .5rem .625rem;
       }
@@ -117,6 +131,7 @@
 
     > div {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: .5rem;
@@ -125,6 +140,7 @@
 
     dt {
       display: inline-flex;
+      flex: none;
       align-items: center;
       gap: .25rem;
       color: var(--muted-text);
@@ -146,11 +162,14 @@
 
     dd {
       margin: 0;
+      margin-inline-start: auto;
+      max-width: 100%;
       color: var(--text-strong);
       font-size: .75rem;
       font-weight: 500;
       font-variant-numeric: tabular-nums;
-      white-space: nowrap;
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
   }
 }

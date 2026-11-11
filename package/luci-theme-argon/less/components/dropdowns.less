@@ -88,6 +88,9 @@
   text-align: start;
 
   > li {
+    // IP/MAC choices contain text, a strong hostname and punctuation. Keep
+    // those fragments in one text flow instead of separate anonymous flex items.
+    display: block;
     min-width: 0;
     min-height: 2.5rem;
     padding: .5rem .75rem;
@@ -96,10 +99,13 @@
     background: transparent;
     color: inherit;
     white-space: normal;
-    overflow-wrap: anywhere;
+    // Let full words contribute to the menu's intrinsic width. `anywhere`
+    // shrinks compact controls' expanded labels down to a single character.
+    overflow-wrap: break-word;
     cursor: pointer;
 
     > label {
+      display: block;
       flex: 1 1 auto;
       min-width: 0;
       margin-inline-start: .5rem;
@@ -108,6 +114,7 @@
     // Keep wrapped descriptions in one text column, with the icon on its first line.
     &:has(> img),
     > label:has(> img) {
+      display: flex;
       align-items: flex-start;
 
       > img {

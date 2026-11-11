@@ -1,0 +1,6 @@
+#!/bin/sh
+
+/etc/init.d/bpir4-storage-share enable
+/etc/init.d/bpir4-storage-share start
+
+exit 0

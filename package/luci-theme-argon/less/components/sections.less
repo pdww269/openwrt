@@ -1,5 +1,13 @@
 // out: false
 
+// Opt-in surface for native views that do not render a cbi-section.
+.native-page-card() {
+  min-width: 0;
+  border-radius: var(--radius-card);
+  background-color: var(--surface-color);
+  box-shadow: var(--section-shadow);
+}
+
 .cbi-section,
 .cbi-section-error,
 #iptables,
@@ -8,7 +16,6 @@
 #cbi-wireless>.cbi-section-node,
 #cbi-wireless>#wifi_assoclist_table,
 [data-tab-title],
-[data-page^="admin-system-admin"]:not(.node-main-login) .cbi-map:not(#cbi-dropbear),
 [data-page="admin-system-opkg"] #maincontent>.container {
   font-family: inherit;
   font-weight: normal;
@@ -66,6 +73,35 @@
 
 .cbi-section-descr:empty {
   display: none !important;
+}
+
+// Older Lua CBI forms omit the body inset supplied by modern tab containers.
+// Page adapters opt in so headings, descriptions and fields share one rhythm.
+.legacy-cbi-section-spacing() {
+  .cbi-section {
+    > .cbi-section-node:not(.cbi-section-node-tabbed):where(:has(> .cbi-value, > [id] > .cbi-value)) {
+      padding-block: var(--field-gap);
+    }
+
+    // Descriptions already inset the body, but a painted heading is a separate
+    // surface: its bottom padding cannot supply space below that surface.
+    > .cbi-section-descr:not(:empty) ~ .cbi-section-node:not(.cbi-section-node-tabbed) {
+      padding-block-start: 0;
+    }
+
+    > .cbi-value {
+      padding-block: var(--field-gap);
+    }
+
+    > .cbi-value ~ .cbi-value,
+    > .cbi-section-descr:not(:empty) ~ .cbi-value {
+      padding-block-start: 0;
+    }
+
+    > .cbi-section-create {
+      padding: var(--field-gap) var(--section-inset);
+    }
+  }
 }
 
 .cbi-map-descr+fieldset {

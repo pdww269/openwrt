@@ -1,0 +1,29 @@
+#!/bin/sh /etc/rc.common
+
+START=95
+
+start() {
+	local propagation
+
+	[ "$(board_name 2>/dev/null)" = "bananapi,bpi-r4" ] || return 0
+
+	for _ in $(seq 1 20); do
+		mountpoint -q /mnt/data && break
+		sleep 1
+	done
+
+	mountpoint -q /mnt/data || {
+		logger -t bpir4-storage-share "/mnt/data is not mounted"
+		return 1
+	}
+
+	propagation="$(findmnt -no PROPAGATION /mnt/data 2>/dev/null)"
+	case "$propagation" in
+		shared*) return 0 ;;
+	esac
+
+	mount --make-rshared /mnt/data || {
+		logger -t bpir4-storage-share "failed to mark /mnt/data shared"
+		return 1
+	}
+}
